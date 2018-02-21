@@ -1,5 +1,5 @@
 # Project specific
-config_default.py
+config.py
 config_prod.py
 
 # Byte-compiled / optimized / DLL files

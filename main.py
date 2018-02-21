@@ -102,8 +102,4 @@ async def watcher():
 
 game_server = GameServer(loop, event_handler=on_gameserver_event)
 
-while True:
-    try:
-        client.run(config.DISCORD_TOKEN)
-    except Exception as e:
-        logger.error(e)
+client.run(config.DISCORD_TOKEN)
