@@ -34,7 +34,7 @@ class GameServer:
         self._previous_map = None
         self._previous_playerlist = []
         self._map = None
-        self._playerlist = []
+        self._playerlist = None
 
         self.status = None
 
@@ -51,7 +51,7 @@ class GameServer:
     async def _query(self):
         if self._map:
             self._previous_map = self._map
-        if self._playerlist:
+        if self._playerlist is not None:
             self._previous_playerlist = self._playerlist
 
         try:
@@ -79,9 +79,6 @@ class GameServer:
                 else:
                     if 'AFK' not in player:
                         event_queue.append(Event('quit', player))
-                    if len(self._playerlist) == 0 and game_start_time:
-                        event_queue.append(Event('rip', time.time() - game_start_time))
-                        game_start_time = 0
 
         for player in self._playerlist:
             if player not in self._previous_playerlist and player != 'Unknown':
@@ -93,6 +90,10 @@ class GameServer:
 
         if self._map != self._previous_map:
             event_queue.append(Event('map_change', self._map))
+
+        if len(self._playerlist) == 0 and game_start_time:
+            event_queue.append(Event('rip', time.time() - game_start_time))
+            game_start_time = 0
 
         if len(self._previous_playerlist) == config.ALERT_PLAYERCOUNT_START - 1 \
                 and len(self._playerlist) == config.ALERT_PLAYERCOUNT_START:
