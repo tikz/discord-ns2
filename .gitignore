@@ -1,6 +1,8 @@
 # Project specific
 config.py
 config_prod.py
+test.py
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
