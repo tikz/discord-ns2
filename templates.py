@@ -37,7 +37,14 @@ class StatusEmbed(Embed):
         self.add_field(name='Slots', value='{player_count}/{max_players}'.format(**status.info), inline=True)
 
         if players:
-            scoreboard = '\n'.join(['{0}\t {1} \t {2}'.format(*row) for row in players])
+            scoreboard = ''
+            for row in players:
+                name, score, duration = row
+                m, s = divmod(duration, 60)
+                h, m = divmod(m, 60)
+                formatted_duration = '%d:%02d:%02d' % (h, m, s)
+
+                scoreboard += '{0} \t\t\t\t\t\t {1} \t\t {2} \n'.format(name, score, formatted_duration)
             self.add_field(name='Jugadores', value=scoreboard, inline=False)
 
         self.set_footer(text='https://github.com/Tikzz/discord-ns2', icon_url='')
