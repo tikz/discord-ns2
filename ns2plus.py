@@ -56,7 +56,7 @@ class Stats():
         else:
             r = [x1, x2 + x3]
         try:
-            r.append('({}%)'.format(round(r[0] / r[1] * 100, 2)))
+            r.append('({}%)'.format(round(r[0] / r[1] * 100, 1)))
         except ZeroDivisionError:
             r.append('')
 
@@ -131,7 +131,7 @@ class Stats():
                 player_stats['Steam ID'] = stats['steamId']
                 player_stats['Hive Skill'] = stats['hiveSkill']
                 player_stats['Wins'] = self._percent_formatter(stats['wins'], stats['losses'])
-                player_stats['KDR'] = round(stats['kdr'], 2)
+                player_stats['KDR'] = round(stats['kdr'], 1)
 
             try:
                 query = queries.PLAYER_ACC.format(steam_id)
@@ -146,9 +146,9 @@ class Stats():
                 alien_weapons = ['Bite', 'Swipe', 'Gore', 'Spikes']
 
                 for weapon in marine_weapons:
-                    player_stats['marine'][weapon + ' Accuracy'] = '{}%'.format(round(weapons[weapon]['accuracy'], 2))
+                    player_stats['marine'][weapon + ' Accuracy'] = '{}%'.format(round(weapons[weapon]['accuracy'], 1))
                 for weapon in alien_weapons:
-                    player_stats['alien'][weapon + ' Accuracy'] = '{}%'.format(round(weapons[weapon]['accuracy'], 2))
+                    player_stats['alien'][weapon + ' Accuracy'] = '{}%'.format(round(weapons[weapon]['accuracy'], 1))
 
                 marine_acc_wavg = (weapons['Rifle']['accuracy'] * weapons['Rifle']['playerDamage'] + weapons['Pistol'][
                     'accuracy'] * weapons['Pistol']['playerDamage'] + weapons['Shotgun']['accuracy'] *
@@ -163,8 +163,8 @@ class Stats():
                                                weapons['Bite']['playerDamage'] + weapons['Gore']['playerDamage'] +
                                                weapons['Swipe']['playerDamage'])
 
-                player_stats['Marine Accuracy'] = '{}%'.format(round(marine_acc_wavg, 2))
-                player_stats['Alien Melee Accuracy'] = '{}%'.format(round(alien_acc_melee_wavg, 2))
+                player_stats['Marine Accuracy'] = '{}%'.format(round(marine_acc_wavg, 1))
+                player_stats['Alien Melee Accuracy'] = '{}%'.format(round(alien_acc_melee_wavg, 1))
 
         return player_stats
 
