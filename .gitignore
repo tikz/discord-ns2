@@ -1,6 +1,10 @@
 # Project specific
 config.py
 config_prod.py
+test.py
+*.sqlite
+*.sqlite3
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

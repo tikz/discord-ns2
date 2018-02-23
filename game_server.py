@@ -6,7 +6,7 @@ from collections import namedtuple
 import valve.source.a2s
 
 import config
-from statusbot import utils
+import utils
 
 logger = logging.getLogger(__name__)
 utils.logger_formatter(logger)

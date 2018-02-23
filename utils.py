@@ -3,6 +3,9 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 
+import templates
+
+
 def logger_formatter(logger):
     """ Apply custom settings to the logger """
     handler = logging.StreamHandler()
@@ -22,7 +25,7 @@ def load_map_thumbnails():
     base_url = 'https://wiki.unknownworlds.com'
     map_list_url = base_url + '/ns2/Map_Index'
 
-    logger.info('GET {}'.format(map_list_url))
+    logger.info(templates.LOG_GET.format(map_list_url))
     map_index = requests.get(map_list_url).text
 
     soup = BeautifulSoup(map_index, 'html.parser')
