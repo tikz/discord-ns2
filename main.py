@@ -48,21 +48,23 @@ async def on_message(message):
     if message.channel == channel:
         if message.content.startswith('!'):
             logger.info(templates.LOG_COMMAND_EXEC.format(message))
+            if message.content.startswith('!status'):
+                status = game_server.status
 
-        if message.content.startswith('!status'):
-            status = game_server.status
+                await client.send_message(channel, embed=templates.StatusEmbed(status))
+            elif message.content.startswith('!comm'):
+                params = message.content.split('!comm ')
+                player = params[1]
+                await client.send_message(channel, embed=templates.CommEmbed(player))
+            elif message.content.startswith('!player'):
+                params = message.content.split('!player ')
+                player = params[1]
+                await client.send_message(channel, embed=templates.PlayerEmbed(player))
+            elif message.content.startswith('!help'):
+                await client.send_message(channel, embed=templates.HelpEmbed())
+            else:
+                await client.send_message(channel, templates.MSG_COMMAND_NOT_RECOGNIZED)
 
-            await client.send_message(channel, embed=templates.StatusEmbed(status))
-
-        if message.content.startswith('!comm'):
-            params = message.content.split('!comm ')
-            player = params[1]
-            await client.send_message(channel, embed=templates.CommEmbed(player))
-
-        if message.content.startswith('!player'):
-            params = message.content.split('!player ')
-            player = params[1]
-            await client.send_message(channel, embed=templates.PlayerEmbed(player))
 
 
 async def on_gameserver_event(event):

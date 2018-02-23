@@ -3,6 +3,7 @@ LOG_BOT_CONNECTED = 'Bot conectado: {} - {}'
 LOG_COMMAND_EXEC = '{0.author} ejecutó el comando {0.content}'
 
 MSG_ON_CONNECT = ':robot: Iniciado'
+MSG_COMMAND_NOT_RECOGNIZED = 'Comando no reconocido. Para ver la lista de comandos: **!help**'
 MSG_EVENT_JOIN = ':large_blue_circle: **{}** *entró al servidor*'
 MSG_EVENT_QUIT = ':red_circle: **{}** *salió del servidor*'
 MSG_EVENT_AFK = ':zzz: **{}** *está AFK*'
@@ -21,6 +22,15 @@ import utils
 logger = logging.getLogger(__name__)
 utils.logger_formatter(logger)
 
+class HelpEmbed(Embed):
+    def __init__(self):
+        super().__init__()
+
+        self.set_author(name='Lista de comandos', icon_url=config.BOT_ICON_URL)
+        self.description = '**!status** \t\t\t Estado del servidor\n'
+        self.description += '**!player** *nick* \tVer estadísticas alien y marine del jugador\n'
+        self.description += '**!comm** *nick* \t Ver estadísticas de commander marine del jugador\n'
+        self.color = 0xD0021B
 
 class StatusEmbed(Embed):
     def __init__(self, status):

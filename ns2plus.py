@@ -35,11 +35,13 @@ class Stats():
 
     async def update(self):
         logger.info(templates.LOG_GET.format(config.NS2STATS_DB_URL))
-        with aiohttp.ClientSession() as session:
-            async with session.get(config.NS2STATS_DB_URL) as resp:
-                data = await resp.read()
-                with open(DB, 'wb') as f:
-                    f.write(data)
+
+        if config.NS2STATS_ENABLE_UPDATES:
+            with aiohttp.ClientSession() as session:
+                async with session.get(config.NS2STATS_DB_URL) as resp:
+                    data = await resp.read()
+                    with open(DB, 'wb') as f:
+                        f.write(data)
 
         with Database() as db:
             self.steam_ids = CaseInsensitiveDict()
