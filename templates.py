@@ -4,6 +4,7 @@ LOG_COMMAND_EXEC = '{0.author} ejecutó el comando {0.content}'
 
 MSG_ON_CONNECT = ':robot: Iniciado'
 MSG_COMMAND_NOT_RECOGNIZED = 'Comando no reconocido. Para ver la lista de comandos: **!help**'
+MSG_COMMAND_REQUIRES_PARAMS = 'El comando requiere parametros. Para ver la lista de comandos: **!help**'
 MSG_EVENT_JOIN = ':large_blue_circle: **{}** *entró al servidor*'
 MSG_EVENT_QUIT = ':red_circle: **{}** *salió del servidor*'
 MSG_EVENT_AFK = ':zzz: **{}** *está AFK*'

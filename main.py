@@ -54,12 +54,20 @@ async def on_message(message):
                 await client.send_message(channel, embed=templates.StatusEmbed(status))
             elif message.content.startswith('!comm'):
                 params = message.content.split('!comm ')
-                player = params[1]
-                await client.send_message(channel, embed=templates.CommEmbed(player))
+                try:
+                    player = params[1]
+                except:
+                    await client.send_message(channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                else:
+                    await client.send_message(channel, embed=templates.CommEmbed(player))
             elif message.content.startswith('!player'):
                 params = message.content.split('!player ')
-                player = params[1]
-                await client.send_message(channel, embed=templates.PlayerEmbed(player))
+                try:
+                    player = params[1]
+                except:
+                    await client.send_message(channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                else:
+                    await client.send_message(channel, embed=templates.PlayerEmbed(player))
             elif message.content.startswith('!help'):
                 await client.send_message(channel, embed=templates.HelpEmbed())
             else:
