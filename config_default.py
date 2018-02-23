@@ -2,7 +2,8 @@ SERVER_ADDRESS = ''  # Game server IP
 SERVER_PORT = 27016  # Query port
 SERVER_POLL_RATE = 5  # Max query rate, in seconds
 
-NS2STATS_DB_URL = ''
+WONITOR_URL = ''  # 'http://example.com/wonitor/'
+NS2STATS_DB_URL = ''  # http://example.com/wonitor/data/ns2plus.sqlite3'
 
 DISCORD_TOKEN = ''  # App token
 DISCORD_CHANNEL = ''  # Channel ID (numbers)
