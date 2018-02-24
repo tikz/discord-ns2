@@ -110,6 +110,7 @@ class CommEmbed(Embed):
         try:
             comm_stats = ns2plus.stats.get_comm_stats(player)
             self.set_author(name=comm_stats['Name'], icon_url=config.BOT_ICON_URL)
+            self.add_field(name='Win rate', value=comm_stats['Wins'], inline=False)
 
             for key in comm_stats['supplies'].keys():
                 self.add_field(name=key, value=comm_stats['supplies'][key], inline=True)
