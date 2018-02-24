@@ -21,7 +21,7 @@ class Database():
 
     def __enter__(self):
         self.conn = sqlite3.connect(self.db)
-        self.conn.row_factory = sqlite3.Row  # This enables column access by name: row['column_name']
+        self.conn.row_factory = sqlite3.Row
         return self.conn.cursor()
 
     def __exit__(self, type, value, traceback):
@@ -61,6 +61,13 @@ class Stats():
             r.append('')
 
         return '{}/{} {}'.format(*r)
+
+    @staticmethod
+    def _weighted_avg(l):
+        a = sum([x*y for x,y in l])
+        b = sum([y for _,y in l])
+        return a/b
+
 
     def get_comm_stats(self, player):
         if player in self.steam_ids:
@@ -135,7 +142,6 @@ class Stats():
 
             try:
                 query = queries.PLAYER_ACC.format(steam_id)
-                # esults = [dict(ix) for ix in db.execute(query).fetchall()]
                 for ix in db.execute(query).fetchall():
                     row = dict(ix)
                     weapons[row['weapon']] = row
@@ -146,22 +152,31 @@ class Stats():
                 alien_weapons = ['Bite', 'Swipe', 'Gore', 'Spikes']
 
                 for weapon in marine_weapons:
-                    player_stats['marine'][weapon + ' Accuracy'] = '{}%'.format(round(weapons[weapon]['accuracy'], 1))
+                    try:
+                        player_stats['marine'][weapon + ' Accuracy'] = '{}%'.format(round(weapons[weapon]['accuracy'], 1))
+                    except:
+                        pass
                 for weapon in alien_weapons:
-                    player_stats['alien'][weapon + ' Accuracy'] = '{}%'.format(round(weapons[weapon]['accuracy'], 1))
+                    try:
+                        player_stats['alien'][weapon + ' Accuracy'] = '{}%'.format(round(weapons[weapon]['accuracy'], 1))
+                    except:
+                        pass
 
-                marine_acc_wavg = (weapons['Rifle']['accuracy'] * weapons['Rifle']['playerDamage'] + weapons['Pistol'][
-                    'accuracy'] * weapons['Pistol']['playerDamage'] + weapons['Shotgun']['accuracy'] *
-                                   weapons['Shotgun'][
-                                       'playerDamage']) / (
-                                          weapons['Rifle']['playerDamage'] + weapons['Pistol']['playerDamage'] +
-                                          weapons['Shotgun']['playerDamage'])
+                # Only run weighted average with weapons that the player has used.
+                available_marine_weapons = []
+                available_alien_weapons = []
 
-                alien_acc_melee_wavg = (weapons['Bite']['accuracy'] * weapons['Bite']['playerDamage'] + weapons['Gore'][
-                    'accuracy'] * weapons['Gore']['playerDamage'] + weapons['Swipe']['accuracy'] * weapons['Swipe'][
-                                            'playerDamage']) / (
-                                               weapons['Bite']['playerDamage'] + weapons['Gore']['playerDamage'] +
-                                               weapons['Swipe']['playerDamage'])
+                for weapon in marine_weapons:
+                    if weapon in weapons:
+                        available_marine_weapons.append((weapons[weapon]['accuracy'], weapons[weapon]['playerDamage']))
+                for weapon in alien_weapons:
+                    if weapon in weapons:
+                        available_alien_weapons.append((weapons[weapon]['accuracy'], weapons[weapon]['playerDamage']))
+
+
+
+                marine_acc_wavg = self._weighted_avg(available_marine_weapons)
+                alien_acc_melee_wavg = self._weighted_avg(available_alien_weapons)
 
                 player_stats['Marine Accuracy'] = '{}%'.format(round(marine_acc_wavg, 1))
                 player_stats['Alien Melee Accuracy'] = '{}%'.format(round(alien_acc_melee_wavg, 1))
