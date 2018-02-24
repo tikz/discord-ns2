@@ -105,7 +105,7 @@ async def on_gameserver_event(event):
         await client.send_message(channel, templates.MSG_EVENT_CHANGEMAP.format(event.value))
 
     if event.type == 'game_start' and config.ALERT_EVERYONE_ENABLED:
-        await client.send_message(channel, embed=templates.GameStartEmbed)
+        await client.send_message(channel, embed=templates.GameStartEmbed())
 
     if event.type == 'rip' and config.ALERT_EVERYONE_RIP:
         await client.send_message(channel, embed=templates.GameRipEmbed(event.value))
