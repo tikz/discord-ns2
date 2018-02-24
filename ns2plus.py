@@ -168,10 +168,13 @@ class Stats():
                 available_marine_weapons = []
                 available_alien_weapons = []
 
-                for weapon in marine_weapons:
+                wavg_marine_weapons = ['Rifle', 'Pistol', 'Shotgun']
+                wavg_alien_weapons = ['Bite', 'Swipe', 'Gore', 'LerkBite']
+
+                for weapon in wavg_marine_weapons:
                     if weapon in weapons:
                         available_marine_weapons.append((weapons[weapon]['accuracy'], weapons[weapon]['playerDamage']))
-                for weapon in alien_weapons:
+                for weapon in wavg_alien_weapons:
                     if weapon in weapons:
                         available_alien_weapons.append((weapons[weapon]['accuracy'], weapons[weapon]['playerDamage']))
 
