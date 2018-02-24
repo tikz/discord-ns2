@@ -149,7 +149,7 @@ class Stats():
                 pass
             else:
                 marine_weapons = ['Rifle', 'Pistol', 'Shotgun']
-                alien_weapons = ['Bite', 'Swipe', 'Gore', 'Spikes']
+                alien_weapons = ['Bite', 'Swipe', 'Gore', 'Spikes', 'LerkBite']
 
                 for weapon in marine_weapons:
                     try:
