@@ -128,14 +128,18 @@ async def ns2plus_watcher():
     global last_match_id
 
     while True:
-        with aiohttp.ClientSession() as session:
-            async with session.get(config.WONITOR_URL + 'query.php?table=RoundInfo&data=count') as r:
-                response = json.loads(await r.read())
-                match_id = int(response[0]['count'])
-                if last_match_id != match_id and last_match_id is not None:
-                    await ns2plus.stats.update()
-                last_match_id = match_id
-        await asyncio.sleep(5)
+        try:
+            with aiohttp.ClientSession() as session:
+                async with session.get(config.WONITOR_URL + 'query.php?table=RoundInfo&data=count') as r:
+                    response = json.loads(await r.read())
+                    match_id = int(response[0]['count'])
+                    if last_match_id != match_id and last_match_id is not None:
+                        await ns2plus.stats.update()
+                    last_match_id = match_id
+        except Exception as e:
+            logger.error(e)
+        else:
+            await asyncio.sleep(5)
 
 
 game_server = GameServer(loop, event_handler=on_gameserver_event)
