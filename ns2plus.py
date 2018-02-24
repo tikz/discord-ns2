@@ -3,17 +3,18 @@ import logging
 import sqlite3
 
 import aiohttp
+from requests.structures import CaseInsensitiveDict
 
 import config
 import queries
 import templates
 import utils
-from requests.structures import CaseInsensitiveDict
 
 logger = logging.getLogger(__name__)
 utils.logger_formatter(logger)
 
 DB = 'ns2plus.sqlite3'
+
 
 class Database():
     def __init__(self):
@@ -64,10 +65,9 @@ class Stats():
 
     @staticmethod
     def _weighted_avg(l):
-        a = sum([x*y for x,y in l])
-        b = sum([y for _,y in l])
-        return a/b
-
+        a = sum([x * y for x, y in l])
+        b = sum([y for _, y in l])
+        return a / b
 
     def get_comm_stats(self, player):
         if player in self.steam_ids:
@@ -153,12 +153,14 @@ class Stats():
 
                 for weapon in marine_weapons:
                     try:
-                        player_stats['marine'][weapon + ' Accuracy'] = '{}%'.format(round(weapons[weapon]['accuracy'], 1))
+                        player_stats['marine'][weapon + ' Accuracy'] = '{}%'.format(
+                            round(weapons[weapon]['accuracy'], 1))
                     except:
                         pass
                 for weapon in alien_weapons:
                     try:
-                        player_stats['alien'][weapon + ' Accuracy'] = '{}%'.format(round(weapons[weapon]['accuracy'], 1))
+                        player_stats['alien'][weapon + ' Accuracy'] = '{}%'.format(
+                            round(weapons[weapon]['accuracy'], 1))
                     except:
                         pass
 
@@ -172,8 +174,6 @@ class Stats():
                 for weapon in alien_weapons:
                     if weapon in weapons:
                         available_alien_weapons.append((weapons[weapon]['accuracy'], weapons[weapon]['playerDamage']))
-
-
 
                 marine_acc_wavg = self._weighted_avg(available_marine_weapons)
                 alien_acc_melee_wavg = self._weighted_avg(available_alien_weapons)

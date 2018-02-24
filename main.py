@@ -36,7 +36,8 @@ async def on_ready():
     channel = client.get_channel(config.DISCORD_CHANNEL)
     await client.send_message(channel, templates.MSG_ON_CONNECT)
 
-    asyncio.ensure_future(watcher())
+    asyncio.ensure_future(alerter_watcher())
+    asyncio.ensure_future(ns2plus_watcher())
 
 
 @client.event
@@ -109,13 +110,9 @@ async def on_gameserver_event(event):
     if event.type == 'rip' and config.ALERT_EVERYONE_RIP:
         await client.send_message(channel, embed=templates.GameRipEmbed(event.value))
 
-
-async def watcher():
-    """ Periodically check if some conditions are met. """
-
+async def alerter_watcher():
+    """ Periodically check if the alerter condition is met. """
     global channel
-    global last_match_id
-
     while True:
         status = game_server.status
         if config.ALERT_EVERYONE_ENABLED:
@@ -126,6 +123,11 @@ async def watcher():
             else:
                 await asyncio.sleep(5)
 
+async def ns2plus_watcher():
+    """ Periodically check if there is an updated ns2plus database available """
+    global last_match_id
+
+    while True:
         with aiohttp.ClientSession() as session:
             async with session.get(config.WONITOR_URL + 'query.php?table=RoundInfo&data=count') as r:
                 response = json.loads(await r.read())
