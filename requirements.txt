@@ -9,7 +9,9 @@ idna==2.6
 monotonic==1.4
 multidict==4.1.0
 python-valve==0.2.1
+pytz==2018.3
 requests==2.18.4
 six==1.11.0
+tqdm==4.19.5
 urllib3==1.22
 websockets==3.4
