@@ -19,6 +19,9 @@ from discord import Embed
 import config
 import ns2plus
 import utils
+import pytz
+
+tz = pytz.timezone(config.TIMEZONE)
 
 logger = logging.getLogger(__name__)
 utils.logger_formatter(logger)
@@ -59,7 +62,8 @@ class StatusEmbed(Embed):
             self.add_field(name='Jugadores', value=scoreboard, inline=False)
 
         self.set_footer(text='https://github.com/Tikzz/discord-ns2', icon_url='')
-        self.timestamp = datetime.datetime.now()
+        self.timestamp = datetime.datetime.now(tz)
+        print(self.timestamp)
 
         if status.map in utils.map_thumbnails:
             self.set_thumbnail(url=utils.map_thumbnails[status.map])
@@ -120,7 +124,7 @@ class CommEmbed(Embed):
             self.set_footer(
                 text='Hive Skill: {} - Steam ID: {}'.format(comm_stats['Hive Skill'], comm_stats['Steam ID']),
                 icon_url='')
-            self.timestamp = datetime.datetime.now()
+            self.timestamp = datetime.datetime.now(tz)
         except Exception as e:
             self.description = 'No se encuentra el jugador.'
             logger.error(e)
@@ -159,7 +163,7 @@ class PlayerEmbed(Embed):
             self.set_footer(
                 text='Hive Skill: {} - Steam ID: {}'.format(player_stats['Hive Skill'], player_stats['Steam ID']),
                 icon_url='')
-            self.timestamp = datetime.datetime.now()
+            self.timestamp = datetime.datetime.now(tz)
         except Exception as e:
             self.description = 'No se encuentra el jugador.'
             logger.error(e)
