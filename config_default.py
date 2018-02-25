@@ -11,6 +11,7 @@ NS2STATS_ENABLE_UPDATES = True
 
 DISCORD_TOKEN = ''  # App token
 DISCORD_CHANNEL = ''  # Channel ID (numbers)
+ENABLE_STARTUP_MSG = True
 
 BOT_ICON_URL = 'https://i.imgur.com/DsxGVnu.jpg'
 

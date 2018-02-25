@@ -34,7 +34,8 @@ async def on_ready():
     logger.info(templates.LOG_BOT_CONNECTED.format(client.user.name, client.user.id))
 
     channel = client.get_channel(config.DISCORD_CHANNEL)
-    await client.send_message(channel, templates.MSG_ON_CONNECT)
+    if config.ENABLE_STARTUP_MSG == True:
+        await client.send_message(channel, templates.MSG_ON_CONNECT)
 
     asyncio.ensure_future(alerter_watcher())
     asyncio.ensure_future(ns2plus_watcher())
