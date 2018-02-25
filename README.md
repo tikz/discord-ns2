@@ -9,6 +9,12 @@ Originally made for the NS2 Sudamerica 8v8 server.
 
 Requires Python >= 3.6
 
+## Screenshots
+![status](https://i.imgur.com/lQgtWEo.png)
+![player](https://i.imgur.com/51id43N.png)
+![comm](https://i.imgur.com/grPtVU7.png)
+
+
 ### Deploy
 ```
 $ pip install virtualenv
