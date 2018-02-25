@@ -1,6 +1,6 @@
 LOG_GET = 'GET {}'
 LOG_BOT_CONNECTED = 'Bot conectado: {} - {}'
-LOG_COMMAND_EXEC = '{0.author} ejecutó el comando {0.content}'
+LOG_COMMAND_EXEC = '{0.author} ejecutó el comando {0.content} en {0.channel}'
 
 MSG_ON_CONNECT = ':robot: Iniciado'
 MSG_COMMAND_NOT_RECOGNIZED = 'Comando no reconocido. Para ver la lista de comandos: **!help**'
@@ -20,6 +20,7 @@ from discord import Embed
 import config
 import ns2plus
 import utils
+from server_logs import logs
 
 tz = pytz.timezone(config.TIMEZONE)
 
@@ -33,8 +34,9 @@ class HelpEmbed(Embed):
 
         self.set_author(name='Lista de comandos', icon_url=config.BOT_ICON_URL)
         self.description = '**!status** \t\t\t Estado del servidor\n'
-        self.description += '**!player** *nick* \tVer estadísticas alien y marine del jugador\n'
-        self.description += '**!comm** *nick* \t Ver estadísticas de commander marine del jugador\n'
+        if config.ENABLE_STATS:
+            self.description += '**!player** *nick* \tVer estadísticas alien y marine del jugador\n'
+            self.description += '**!comm** *nick* \t Ver estadísticas de commander marine del jugador\n'
         self.color = 0xD0021B
 
 
@@ -65,7 +67,6 @@ class StatusEmbed(Embed):
 
         self.set_footer(text='https://github.com/Tikzz/discord-ns2', icon_url='')
         self.timestamp = datetime.datetime.now(tz)
-        print(self.timestamp)
 
         if status.map in utils.map_thumbnails:
             self.set_thumbnail(url=utils.map_thumbnails[status.map])
@@ -75,7 +76,8 @@ class AlertEveryoneEmbed(Embed):
     def __init__(self, needed_players):
         super().__init__()
 
-        self.description = ':warning: Faltan **{}** personas y arrancamos @everyone'.format(needed_players)
+        self.description = ':warning: Falta **{}** persona{} para arrancar @everyone'.format(needed_players, 's' if len(
+            needed_players) > 1 else '')
         self.color = 0xD0021B
 
 
@@ -176,6 +178,31 @@ class ResponseEmbed(Embed):
         super().__init__()
         self.description = description
         self.color = 0xD0021B
+
+
+class NS2IDEmbed(Embed):
+    def __init__(self, input):
+        super().__init__()
+        try:
+            self.description = 'NS2ID: **{}**'.format(utils.steam64_ns2id(input))
+        except:
+            self.description = 'No se reconoce la entrada.'
+        self.color = 0xD0021B
+
+
+def logs_response(input):
+    logs.sync()
+    found = logs.search(input)
+
+    if found:
+        response = ''
+        n_found = len(found)
+        response += 'Hay **{}** coincidencia{}.'.format(n_found, 's' if n_found > 1 else '')
+        response += ' Mostrando solo las últimas 10.' if n_found > 10 else ''
+        response += '\n```{}```'.format('\n'.join(found[::-1][:10]))
+        return response
+    else:
+        return ':warning: No se encuentra.'
 
 
 class AwardsEmbed(Embed):

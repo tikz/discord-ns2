@@ -4,6 +4,8 @@ config_prod.py
 test.py
 *.sqlite
 *.sqlite3
+serverlogs/
+serverlogs/*
 
 
 # Byte-compiled / optimized / DLL files

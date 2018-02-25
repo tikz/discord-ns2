@@ -5,13 +5,22 @@ SERVER_POLL_RATE = 5  # Max query rate, in seconds
 # See https://gist.github.com/heyalexej/8bf688fd67d7199be4a1682b3eec7568
 TIMEZONE = 'America/Argentina/Buenos_Aires'
 
+DISCORD_TOKEN = ''  # App token
+DISCORD_CHANNEL = ''  # Channel ID (number)
+DISCORD_ADMIN_CHANNEL = ''  # Channel ID (number)
+ENABLE_STARTUP_MSG = True
+
+ENABLE_STATS = False
 WONITOR_URL = 'http://example.com/wonitor/'
 NS2STATS_DB_URL = 'http://example.com/wonitor/data/ns2plus.sqlite3'
 NS2STATS_ENABLE_UPDATES = True
 
-DISCORD_TOKEN = ''  # App token
-DISCORD_CHANNEL = ''  # Channel ID (number)
-ENABLE_STARTUP_MSG = True
+ENABLE_FTP_LOGS = False
+FTP_ADDRESS = ''
+FTP_USER = ''
+FTP_PASSWORD = ''
+FTP_LOGS_PATH = '/config/shine/logs'
+LOCAL_LOGS_PATH = './serverlogs/'
 
 BOT_ICON_URL = 'https://i.imgur.com/DsxGVnu.jpg'
 

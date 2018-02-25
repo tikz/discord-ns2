@@ -21,6 +21,7 @@ loop = asyncio.get_event_loop()
 
 client = discord.Client(loop=loop)
 channel = None
+admin_channel = None
 
 last_match_id = None
 
@@ -30,10 +31,12 @@ async def on_ready():
     """ Run after the bot is connected to Discord """
 
     global channel
+    global admin_channel
 
     logger.info(templates.LOG_BOT_CONNECTED.format(client.user.name, client.user.id))
 
     channel = client.get_channel(config.DISCORD_CHANNEL)
+    admin_channel = client.get_channel(config.DISCORD_ADMIN_CHANNEL)
     if config.ENABLE_STARTUP_MSG == True:
         await client.send_message(channel, templates.MSG_ON_CONNECT)
 
@@ -46,50 +49,64 @@ async def on_message(message):
     """ Wait for !commands """
 
     global channel
+    global admin_channel
 
-    if message.channel == channel:
+    admin_command = message.channel == admin_channel
+    public_command = message.channel == channel or message.channel == admin_channel
+
+    if message.channel == channel or message.channel == admin_channel:
         if message.content.startswith('!'):
             logger.info(templates.LOG_COMMAND_EXEC.format(message))
             if message.content.startswith('!status'):
                 status = game_server.status
 
-                await client.send_message(channel, embed=templates.StatusEmbed(status))
-            elif message.content.startswith('!comm'):
+                await client.send_message(message.channel, embed=templates.StatusEmbed(status))
+
+            elif message.content.startswith('!comm') and public_command and config.ENABLE_STATS:
                 params = message.content.split('!comm ')
                 try:
                     player = params[1]
                 except:
-                    await client.send_message(channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
                 else:
-                    await client.send_message(channel, embed=templates.CommEmbed(player))
-            elif message.content.startswith('!player'):
+                    await client.send_message(message.channel, embed=templates.CommEmbed(player))
+
+            elif message.content.startswith('!player') and public_command and config.ENABLE_STATS:
                 params = message.content.split('!player ')
                 try:
                     player = params[1]
                 except:
-                    await client.send_message(channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
                 else:
-                    await client.send_message(channel, embed=templates.PlayerEmbed(player))
-            elif message.content.startswith('!ns2id'):
+                    await client.send_message(message.channel, embed=templates.PlayerEmbed(player))
+
+            elif message.content.startswith('!ns2id') and admin_command:
                 params = message.content.split('!ns2id ')
                 try:
-                    steam64 = params[1]
+                    input = params[1]
                 except:
-                    await client.send_message(channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
                 else:
-                    try:
-                        msg = 'NS2ID: **{}**'.format(utils.steam64_ns2id(steam64))
-                    except Exception as e:
-                        logger.error(e)
-                        await client.send_message(channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
-                    else:
-                        await client.send_message(channel, embed=templates.ResponseEmbed(msg))
-            elif message.content.startswith('!awards'):
-                await client.send_message(channel, embed=templates.AwardsEmbed())
-            elif message.content.startswith('!help'):
-                await client.send_message(channel, embed=templates.HelpEmbed())
+                    await client.send_message(message.channel, embed=templates.NS2IDEmbed(input))
+
+            elif message.content.startswith('!logs') and admin_command and config.ENABLE_FTP_LOGS:
+                params = message.content.split('!logs ')
+                try:
+                    pattern = params[1]
+                except:
+                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                else:
+                    tmp = await client.send_message(message.channel, '...')
+                    await client.edit_message(tmp, templates.logs_response(pattern))
+
+            elif message.content.startswith('!awards') and public_command and config.ENABLE_STATS:
+                await client.send_message(message.channel, embed=templates.AwardsEmbed())
+
+            elif message.content.startswith('!help') and public_command:
+                await client.send_message(message.channel, embed=templates.HelpEmbed())
+
             else:
-                await client.send_message(channel, templates.MSG_COMMAND_NOT_RECOGNIZED)
+                await client.send_message(message.channel, templates.MSG_COMMAND_NOT_RECOGNIZED)
 
 
 async def on_gameserver_event(event):
@@ -152,6 +169,8 @@ async def ns2plus_watcher():
                     response = json.loads(await r.read())
                     match_id = int(response[0]['count'])
                     if last_match_id != match_id and last_match_id is not None:
+                        msg = 'Nueva ronda con ID {}. Actualizando DB.'.format(match_id)
+                        await client.send_message(admin_channel, embed=templates.ResponseEmbed(msg))
                         await ns2plus.stats.update()
                     last_match_id = match_id
         except Exception as e:
