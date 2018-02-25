@@ -78,7 +78,7 @@ async def on_message(message):
                     await client.send_message(channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
                 else:
                     try:
-                        msg = 'NS2ID: **{}**'.format(utils.steam64_ns2id(int(steam64)))
+                        msg = 'NS2ID: **{}**'.format(utils.steam64_ns2id(steam64))
                     except Exception as e:
                         logger.error(e)
                         await client.send_message(channel, templates.MSG_COMMAND_REQUIRES_PARAMS)

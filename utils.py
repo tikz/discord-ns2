@@ -2,6 +2,7 @@ import logging
 
 import requests
 from bs4 import BeautifulSoup
+from valve.steam.id import SteamID
 
 import templates
 
@@ -43,14 +44,29 @@ def load_map_thumbnails():
                 map_thumbnails[map_name] = map_url
     return map_thumbnails
 
-def steam64_ns2id(steam64):
-    i_server = 0 if steam64 % 2 == 0 else 1
-    steam64 -= i_server
-    if steam64 > 76561197960265728:
-        steam64 -= 76561197960265728
-    steam64 /= 2
 
-    return int(steam64*2 + i_server)
+def steam64_ns2id(i):
+    try:
+        if 'profiles' in i:
+            if i[-1] == '/':
+                i = i[:-1]
+            profile = SteamID.from_community_url(i)
+        elif 'STEAM_0' in i:
+            profile = SteamID.from_text(i)
+        else:
+            profile = SteamID.from_text('STEAM_0:1:{}'.format(int((int(i) - 76561197960265728) / 2)))
+    except Exception as e:
+        logger.error(e)
+    else:
+        steam64 = int(profile.as_64())
+        i_server = 0 if steam64 % 2 == 0 else 1
+        steam64 -= i_server
+        if steam64 > 76561197960265728:
+            steam64 -= 76561197960265728
+        steam64 /= 2
+
+        return int(steam64 * 2 + i_server)
+
 
 logger = logging.getLogger(__name__)
 logger_formatter(logger)
