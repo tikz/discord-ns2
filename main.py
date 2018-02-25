@@ -76,8 +76,13 @@ async def on_message(message):
                 except:
                     await client.send_message(channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
                 else:
-                    await client.send_message(channel, embed=templates.ResponseEmbed(
-                        'NS2ID: **{}**'.format(utils.steam64_ns2id(steam64))))
+                    try:
+                        msg = 'NS2ID: **{}**'.format(utils.steam64_ns2id(int(steam64)))
+                    except Exception as e:
+                        logger.error(e)
+                        await client.send_message(channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                    else:
+                        await client.send_message(channel, embed=templates.ResponseEmbed(msg))
             elif message.content.startswith('!awards'):
                 await client.send_message(channel, embed=templates.AwardsEmbed())
             elif message.content.startswith('!help'):

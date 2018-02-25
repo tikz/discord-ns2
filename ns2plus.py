@@ -222,7 +222,7 @@ class Stats():
             awards['killing_place'] = _queryFetch(queries.AWARD_KILLING_PLACE)
 
             awards['2nd_hive'] = _queryFetch(queries.AWARD_2ND_HIVE)
-            awards['catpack_tech'] = _queryFetch(queries.AWARD_CATPACK_TECH)
+            #awards['catpack_tech'] = _queryFetch(queries.AWARD_CATPACK_TECH)
             awards['shotgun_tech'] = _queryFetch(queries.AWARD_SHOTGUN_TECH)
             awards['phase_gate'] = _queryFetch(queries.AWARD_PHASE_GATE)
 
