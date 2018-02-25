@@ -14,17 +14,18 @@ MSG_EVENT_CHANGEMAP = ':large_orange_diamond: *Se cambió el mapa a* **{}**'
 import datetime
 import logging
 
+import pytz
 from discord import Embed
 
 import config
 import ns2plus
 import utils
-import pytz
 
 tz = pytz.timezone(config.TIMEZONE)
 
 logger = logging.getLogger(__name__)
 utils.logger_formatter(logger)
+
 
 class HelpEmbed(Embed):
     def __init__(self):
@@ -35,6 +36,7 @@ class HelpEmbed(Embed):
         self.description += '**!player** *nick* \tVer estadísticas alien y marine del jugador\n'
         self.description += '**!comm** *nick* \t Ver estadísticas de commander marine del jugador\n'
         self.color = 0xD0021B
+
 
 class StatusEmbed(Embed):
     def __init__(self, status):
@@ -167,3 +169,49 @@ class PlayerEmbed(Embed):
         except Exception as e:
             self.description = 'No se encuentra el jugador.'
             logger.error(e)
+
+
+class ResponseEmbed(Embed):
+    def __init__(self, description):
+        super().__init__()
+        self.description = description
+        self.color = 0xD0021B
+
+
+class AwardsEmbed(Embed):
+    def __init__(self):
+        super().__init__()
+        self.set_author(name='Awards', icon_url=config.BOT_ICON_URL)
+
+        awards = ns2plus.stats.get_awards()
+
+        self.description = ''
+
+        self.description += '**El rompehuevos** \n'
+        self.description += '`{}` pisó {} huevos con alguien respawneando. \n\n'.format(*awards['exo_egg'])
+
+        self.description += '**Saquenlo por cesarea** \n'
+        self.description += '`{}` jugó {} de huevo. \n\n'.format(*awards['embryo'])
+
+        self.description += '**Mi clase favorita** \n'
+        self.description += '`{}` estuvo {} muerto. \n\n'.format(*awards['dead'])
+
+        self.description += '**THE MEATGRINDER** \n'
+        self.description += '{1} almas sacrificadas al dios {0}. \n\n'.format(*awards['killing_place'])
+
+        self.description += '**asd** \n'
+        self.description += '`{}` sacó shotguns en {} (y {}). \n\n'.format(*awards['shotgun_tech'])
+
+        self.description += '**asd** \n'
+        self.description += '`{}` sacó segunda hive en {} (y {}). \n\n'.format(*awards['2nd_hive'])
+
+        self.description += '**La primera es gratis** \n'
+        self.description += '`{}` sacó catpacks en {} (y {}). \n\n'.format(*awards['catpack_tech'])
+
+        self.description += '**asd** \n'
+        self.description += '`{}` tiró el primer phase gate en {} (y {}). \n\n'.format(*awards['phase_gate'])
+
+        self.description += '**El kick mas rápido del oeste** \n'
+        self.description += '`{}` se metió a commear y lo rajaron en {}. \n\n'.format(*awards['commander_eject'])
+
+        self.timestamp = datetime.datetime.now(tz)

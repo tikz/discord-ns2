@@ -186,6 +186,49 @@ class Stats():
 
         return player_stats
 
+    def get_awards(self):
+        def _queryFetch(query):
+            r = [dict(ix) for ix in db.execute(query).fetchall()][0]
+            for key, value in r.items():
+                if key == 'time':
+                    m, s = divmod(value, 60)
+                    h, m = divmod(m, 60)
+                    h_plural = 's' if int(h) > 1 else ''
+                    m_plural = 's' if int(m) > 1 else ''
+                    s_plural = 's' if int(s) > 1 else ''
+                    human_time = ''
+                    if h > 0:
+                        human_time += '{} hora{}, '.format(int(h), h_plural)
+                    if m > 0:
+                        human_time += '{} min{}, '.format(int(m), m_plural)
+                    if s > 1 or h or m:
+                        human_time += '{} seg{}'.format(int(s), s_plural)
+                    else:
+                        human_time += '{} milisegs'.format(int(s*1000))
+                    r['time'] = human_time
+                if key == 'winmarine':
+                    r['winmarine'] = 'ganó' if value == 1 else 'perdió'
+                if key == 'winalien':
+                    r['winalien'] = 'ganó' if value == 2 else 'perdió'
+            return tuple(r.values())
+
+        awards = {}
+        with Database() as db:
+            awards['parasite'] = _queryFetch(queries.AWARD_PARASITE)
+            awards['dead'] = _queryFetch(queries.AWARD_DEAD)
+            awards['embryo'] = _queryFetch(queries.AWARD_EMBRYO)
+            awards['exo_egg'] = _queryFetch(queries.AWARD_EXO_EGG)
+
+            awards['killing_place'] = _queryFetch(queries.AWARD_KILLING_PLACE)
+
+            awards['2nd_hive'] = _queryFetch(queries.AWARD_2ND_HIVE)
+            awards['catpack_tech'] = _queryFetch(queries.AWARD_CATPACK_TECH)
+            awards['shotgun_tech'] = _queryFetch(queries.AWARD_SHOTGUN_TECH)
+            awards['phase_gate'] = _queryFetch(queries.AWARD_PHASE_GATE)
+
+            awards['commander_eject'] = _queryFetch(queries.AWARD_COMMANDER_EJECT)
+        return awards
 
 loop = asyncio.get_event_loop()
 stats = Stats(loop)
+stats.get_awards()

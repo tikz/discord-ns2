@@ -69,11 +69,21 @@ async def on_message(message):
                     await client.send_message(channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
                 else:
                     await client.send_message(channel, embed=templates.PlayerEmbed(player))
+            elif message.content.startswith('!ns2id'):
+                params = message.content.split('!ns2id ')
+                try:
+                    steam64 = params[1]
+                except:
+                    await client.send_message(channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                else:
+                    await client.send_message(channel, embed=templates.ResponseEmbed(
+                        'NS2ID: **{}**'.format(utils.steam64_ns2id(steam64))))
+            elif message.content.startswith('!awards'):
+                await client.send_message(channel, embed=templates.AwardsEmbed())
             elif message.content.startswith('!help'):
                 await client.send_message(channel, embed=templates.HelpEmbed())
             else:
                 await client.send_message(channel, templates.MSG_COMMAND_NOT_RECOGNIZED)
-
 
 
 async def on_gameserver_event(event):
@@ -110,6 +120,7 @@ async def on_gameserver_event(event):
     if event.type == 'rip' and config.ALERT_EVERYONE_RIP:
         await client.send_message(channel, embed=templates.GameRipEmbed(event.value))
 
+
 async def alerter_watcher():
     """ Periodically check if the alerter condition is met. """
     global channel
@@ -122,6 +133,7 @@ async def alerter_watcher():
                 await asyncio.sleep(config.ALERT_EVERYONE_TIME_CAP)
             else:
                 await asyncio.sleep(5)
+
 
 async def ns2plus_watcher():
     """ Periodically check if there is an updated ns2plus database available """

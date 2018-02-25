@@ -43,6 +43,14 @@ def load_map_thumbnails():
                 map_thumbnails[map_name] = map_url
     return map_thumbnails
 
+def steam64_ns2id(steam64):
+    i_server = 0 if steam64 % 2 == 0 else 1
+    steam64 -= i_server
+    if steam64 > 76561197960265728:
+        steam64 -= 76561197960265728
+    steam64 /= 2
+
+    return int(steam64*2 + i_server)
 
 logger = logging.getLogger(__name__)
 logger_formatter(logger)
