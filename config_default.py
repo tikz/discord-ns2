@@ -5,12 +5,12 @@ SERVER_POLL_RATE = 5  # Max query rate, in seconds
 # See https://gist.github.com/heyalexej/8bf688fd67d7199be4a1682b3eec7568
 TIMEZONE = 'America/Argentina/Buenos_Aires'
 
-WONITOR_URL = ''  # 'http://example.com/wonitor/'
-NS2STATS_DB_URL = ''  # http://example.com/wonitor/data/ns2plus.sqlite3'
+WONITOR_URL = 'http://example.com/wonitor/'
+NS2STATS_DB_URL = 'http://example.com/wonitor/data/ns2plus.sqlite3'
 NS2STATS_ENABLE_UPDATES = True
 
 DISCORD_TOKEN = ''  # App token
-DISCORD_CHANNEL = ''  # Channel ID (numbers)
+DISCORD_CHANNEL = ''  # Channel ID (number)
 ENABLE_STARTUP_MSG = True
 
 BOT_ICON_URL = 'https://i.imgur.com/DsxGVnu.jpg'
