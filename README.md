@@ -1,6 +1,7 @@
 discord-ns2
 ====
-A Discord bot for NS2 that interacts with your game server via the ServerQuery to get current map, slots and player list. If you run Wonitor and NS2Plus, it can also get the ns2plus.sqlite3 file from your Wonitor URL to fetch some per player statistics not originally available in Wonitor.
+A Discord bot for NS2 that interacts with your game server via the ServerQuery to get the current map, slots and player list.
+If you run Wonitor and NS2Plus, it can also get the ns2plus.sqlite3 file from your Wonitor URL to fetch some per player statistics not available in Wonitor.
 
 For translation or customization, templates.py contains all the messages that are sent to Discord.
 
