@@ -198,8 +198,8 @@ def logs_response(input):
         response = ''
         n_found = len(found)
         response += 'Hay **{}** coincidencia{}.'.format(n_found, 's' if n_found > 1 else '')
-        response += ' Mostrando solo las últimas 10.' if n_found > 10 else ''
-        response += '\n```{}```'.format('\n'.join(found[::-1][:10]))
+        response += ' Mostrando solo las últimas 5.' if n_found > 5 else ''
+        response += '\n```{}```'.format('\n'.join(found[::-1][:5]))
         return response
     else:
         return ':warning: No se encuentra.'
