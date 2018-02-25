@@ -77,7 +77,7 @@ class GameServer:
                 if 'AFK - ' + player in self._playerlist:
                     event_queue.append(Event('afk', player.replace('AFK - ', '')))
                 else:
-                    if 'AFK' not in player:
+                    if 'AFK' not in player and player != '':
                         event_queue.append(Event('quit', player))
 
         for player in self._playerlist:
@@ -85,7 +85,7 @@ class GameServer:
                 if 'AFK - ' + player in self._previous_playerlist:
                     event_queue.append(Event('nafk', player))
                 else:
-                    if 'AFK' not in player:
+                    if 'AFK' not in player and player != '':
                         event_queue.append(Event('join', player))
 
         if self._map != self._previous_map:
