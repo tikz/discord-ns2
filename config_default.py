@@ -9,6 +9,8 @@ DISCORD_TOKEN = ''  # App token
 DISCORD_CHANNEL = ''  # Channel ID (number)
 DISCORD_ADMIN_CHANNEL = ''  # Channel ID (number)
 ENABLE_STARTUP_MSG = True
+ENABLE_AFK_EVENT = False
+ENABLE_DB_UPDATE_MSG = False
 
 ENABLE_STATS = False
 WONITOR_URL = 'http://example.com/wonitor/'

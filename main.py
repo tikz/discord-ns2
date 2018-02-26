@@ -128,10 +128,10 @@ async def on_gameserver_event(event):
     if event.type == 'quit':
         await client.send_message(channel, templates.MSG_EVENT_QUIT.format(event.value))
 
-    if event.type == 'afk':
+    if event.type == 'afk' and config.ENABLE_AFK_EVENT:
         await client.send_message(channel, templates.MSG_EVENT_AFK.format(event.value))
 
-    if event.type == 'nafk':
+    if event.type == 'nafk' and config.ENABLE_AFK_EVENT:
         await client.send_message(channel, templates.MSG_EVENT_NAFK.format(event.value))
 
     if event.type == 'map_change':
@@ -169,8 +169,9 @@ async def ns2plus_watcher():
                     response = json.loads(await r.read())
                     match_id = int(response[0]['count'])
                     if last_match_id != match_id and last_match_id is not None:
-                        msg = 'Nueva ronda con ID {}. Actualizando DB.'.format(match_id)
-                        await client.send_message(admin_channel, embed=templates.ResponseEmbed(msg))
+                        if config.ENABLE_DB_UPDATE_MSG:
+                            msg = 'Nueva ronda con ID {}. Actualizando DB.'.format(match_id)
+                            await client.send_message(admin_channel, embed=templates.ResponseEmbed(msg))
                         await ns2plus.stats.update()
                     last_match_id = match_id
         except Exception as e:
