@@ -57,7 +57,6 @@ class GameServer:
         try:
             with valve.source.a2s.ServerQuerier(self._server_address) as server:
                 self._info = server.info()
-                {player_count} / {max_players}
                 self._map = self._info.values['map']
                 self._players = server.players()['players']
                 self._playerlist = [player.values['name'] for player in self._players]
