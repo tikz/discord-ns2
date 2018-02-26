@@ -5,8 +5,8 @@ LOG_COMMAND_EXEC = '{0.author} ejecutó el comando {0.content} en {0.channel}'
 MSG_ON_CONNECT = ':robot: Iniciado'
 MSG_COMMAND_NOT_RECOGNIZED = 'Comando no reconocido. Para ver la lista de comandos: **!help**'
 MSG_COMMAND_REQUIRES_PARAMS = 'El comando requiere parametros. Para ver la lista de comandos: **!help**'
-MSG_EVENT_JOIN = ':large_blue_circle: **{}** *entró al servidor*'
-MSG_EVENT_QUIT = ':red_circle: **{}** *salió del servidor*'
+MSG_EVENT_JOIN = ':large_blue_circle: **{}** *entró al servidor* ({player_count}/{max_players})'
+MSG_EVENT_QUIT = ':red_circle: **{}** *salió del servidor* ({player_count}/{max_players})'
 MSG_EVENT_AFK = ':zzz: **{}** *está AFK*'
 MSG_EVENT_NAFK = ':zzz: **{}** *ya no está AFK*'
 MSG_EVENT_CHANGEMAP = ':large_orange_diamond: *Se cambió el mapa a* **{}**'
@@ -62,7 +62,7 @@ class StatusEmbed(Embed):
                 h, m = divmod(m, 60)
                 formatted_duration = '%d:%02d:%02d' % (h, m, s)
 
-                scoreboard += '{0} \t\t\t\t\t\t {1} \t\t {2} \n'.format(name, score, formatted_duration)
+                scoreboard += '{0} \t {1} \n'.format(formatted_duration, name)
             self.add_field(name='Jugadores', value=scoreboard, inline=False)
 
         self.set_footer(text='https://github.com/Tikzz/discord-ns2', icon_url='')

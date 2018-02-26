@@ -123,10 +123,10 @@ async def on_gameserver_event(event):
     global channel
 
     if event.type == 'join':
-        await client.send_message(channel, templates.MSG_EVENT_JOIN.format(event.value))
+        await client.send_message(channel, templates.MSG_EVENT_JOIN.format(event.value, *game_server.status.info))
 
     if event.type == 'quit':
-        await client.send_message(channel, templates.MSG_EVENT_QUIT.format(event.value))
+        await client.send_message(channel, templates.MSG_EVENT_QUIT.format(event.value, *game_server.status.info))
 
     if event.type == 'afk' and config.ENABLE_AFK_EVENT:
         await client.send_message(channel, templates.MSG_EVENT_AFK.format(event.value))
