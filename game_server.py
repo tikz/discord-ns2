@@ -61,7 +61,8 @@ class GameServer:
                 self._players = server.players()['players']
                 self._playerlist = [player.values['name'] for player in self._players]
         except Exception as ex:
-            logger.error(ex)
+            pass
+            #logger.error(ex)
         else:
             self.status = ServerStatus(self._info, self._map, self._players)
 
