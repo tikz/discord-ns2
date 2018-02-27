@@ -35,9 +35,8 @@ class Stats():
         loop.run_until_complete(self.update())
 
     async def update(self):
-        logger.info(templates.LOG_GET.format(config.NS2STATS_DB_URL))
-
         if config.NS2STATS_ENABLE_UPDATES:
+            logger.info(templates.LOG_GET.format(config.NS2STATS_DB_URL))
             with aiohttp.ClientSession() as session:
                 async with session.get(config.NS2STATS_DB_URL) as resp:
                     data = await resp.read()

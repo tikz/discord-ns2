@@ -20,8 +20,9 @@ ServerStatus = namedtuple('ServerStatus', 'info map players')
 loop = asyncio.get_event_loop()
 
 client = discord.Client(loop=loop)
+
 channel = None
-admin_channel = None
+min_role = None
 
 last_match_id = None
 
@@ -31,14 +32,26 @@ async def on_ready():
     """ Run after the bot is connected to Discord """
 
     global channel
-    global admin_channel
+    global min_role
 
     logger.info(templates.LOG_BOT_CONNECTED.format(client.user.name, client.user.id))
 
-    channel = client.get_channel(config.DISCORD_CHANNEL)
-    admin_channel = client.get_channel(config.DISCORD_ADMIN_CHANNEL)
+    # Set the given default channel in a global
+    channel = client.get_channel(config.DISCORD_DEFAULT_CHANNEL)
     if config.ENABLE_STARTUP_MSG == True:
         await client.send_message(channel, templates.MSG_ON_CONNECT)
+
+    if config.DISCORD_NOW_PLAYING:
+        await client.change_presence(game=discord.Game(name=config.DISCORD_NOW_PLAYING))
+
+    server = client.get_server(config.DISCORD_SERVER)
+
+    # Get the Role object for the given min role name
+    for role in server.roles:
+        if role.name == config.DISCORD_MIN_ROLE:
+            min_role = role
+    if min_role == None:
+        logger.error('The role DISCORD_MIN_ROLE={} was not found on the server'.format(config.DISCORD_MIN_ROLE))
 
     asyncio.ensure_future(alerter_watcher())
     asyncio.ensure_future(ns2plus_watcher())
@@ -49,64 +62,69 @@ async def on_message(message):
     """ Wait for !commands """
 
     global channel
-    global admin_channel
+    global min_role
 
-    admin_command = message.channel == admin_channel
-    public_command = message.channel == channel or message.channel == admin_channel
+    if message.content.startswith('!'):
+        if message.channel.id in config.DISCORD_LISTEN_CHANNELS or message.channel.is_private:
+                author_is_admin = False
 
-    if message.channel == channel or message.channel == admin_channel:
-        if message.content.startswith('!'):
-            logger.info(templates.LOG_COMMAND_EXEC.format(message))
-            if message.content.startswith('!status'):
-                status = game_server.status
+                for member in client.get_server(config.DISCORD_SERVER).members:
+                    if member == message.author:
+                        if member.top_role >= min_role:
+                            author_is_admin = True
+                        break
 
-                await client.send_message(message.channel, embed=templates.StatusEmbed(status))
+                logger.info(templates.LOG_COMMAND_EXEC.format(message))
+                if message.content.startswith('!status'):
+                    status = game_server.status
 
-            elif message.content.startswith('!comm') and public_command and config.ENABLE_STATS:
-                params = message.content.split('!comm ')
-                try:
-                    player = params[1]
-                except:
-                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                    await client.send_message(message.channel, embed=templates.StatusEmbed(status))
+
+                elif message.content.startswith('!comm') and config.ENABLE_STATS:
+                    params = message.content.split('!comm ')
+                    try:
+                        player = params[1]
+                    except:
+                        await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                    else:
+                        await client.send_message(message.channel, embed=templates.CommEmbed(player))
+
+                elif message.content.startswith('!player') and config.ENABLE_STATS:
+                    params = message.content.split('!player ')
+                    try:
+                        player = params[1]
+                    except:
+                        await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                    else:
+                        await client.send_message(message.channel, embed=templates.PlayerEmbed(player))
+
+                elif message.content.startswith('!ns2id') and author_is_admin:
+                    params = message.content.split('!ns2id ')
+                    try:
+                        input = params[1]
+                    except:
+                        await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                    else:
+                        await client.send_message(message.channel, embed=templates.NS2IDEmbed(input))
+
+                elif message.content.startswith('!logs') and author_is_admin and config.ENABLE_FTP_LOGS:
+                    params = message.content.split('!logs ')
+                    try:
+                        pattern = params[1]
+                    except:
+                        await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                    else:
+                        tmp = await client.send_message(message.channel, '...')
+                        await client.edit_message(tmp, templates.logs_response(pattern))
+
+                elif message.content.startswith('!awards') and config.ENABLE_STATS:
+                    await client.send_message(message.channel, embed=templates.AwardsEmbed())
+
+                elif message.content.startswith('!help'):
+                    await client.send_message(message.channel, embed=templates.HelpEmbed())
+
                 else:
-                    await client.send_message(message.channel, embed=templates.CommEmbed(player))
-
-            elif message.content.startswith('!player') and public_command and config.ENABLE_STATS:
-                params = message.content.split('!player ')
-                try:
-                    player = params[1]
-                except:
-                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
-                else:
-                    await client.send_message(message.channel, embed=templates.PlayerEmbed(player))
-
-            elif message.content.startswith('!ns2id') and admin_command:
-                params = message.content.split('!ns2id ')
-                try:
-                    input = params[1]
-                except:
-                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
-                else:
-                    await client.send_message(message.channel, embed=templates.NS2IDEmbed(input))
-
-            elif message.content.startswith('!logs') and admin_command and config.ENABLE_FTP_LOGS:
-                params = message.content.split('!logs ')
-                try:
-                    pattern = params[1]
-                except:
-                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
-                else:
-                    tmp = await client.send_message(message.channel, '...')
-                    await client.edit_message(tmp, templates.logs_response(pattern))
-
-            elif message.content.startswith('!awards') and public_command and config.ENABLE_STATS:
-                await client.send_message(message.channel, embed=templates.AwardsEmbed())
-
-            elif message.content.startswith('!help') and public_command:
-                await client.send_message(message.channel, embed=templates.HelpEmbed())
-
-            else:
-                await client.send_message(message.channel, templates.MSG_COMMAND_NOT_RECOGNIZED)
+                    await client.send_message(message.channel, templates.MSG_COMMAND_NOT_RECOGNIZED)
 
 
 async def on_gameserver_event(event):

@@ -1,13 +1,16 @@
-SERVER_ADDRESS = ''  # Game server IP
+SERVER_ADDRESS = '127.0.0.1'  # Game server IP
 SERVER_PORT = 27016  # Query port
 SERVER_POLL_RATE = 5  # Max query rate, in seconds
 
 # See https://gist.github.com/heyalexej/8bf688fd67d7199be4a1682b3eec7568
 TIMEZONE = 'America/Argentina/Buenos_Aires'
 
-DISCORD_TOKEN = ''  # App token
-DISCORD_CHANNEL = ''  # Channel ID (number)
-DISCORD_ADMIN_CHANNEL = ''  # Channel ID (number)
+DISCORD_TOKEN = ''  # Discord App token
+DISCORD_SERVER = ''  # Discord Server ID (number)
+DISCORD_MIN_ROLE = 'Admin'  # Minimum role that can run bot commands designated as admin-only. Case sensitive.
+DISCORD_DEFAULT_CHANNEL = ''  # Channel ID of the default channel.
+DISCORD_LISTEN_CHANNELS = [DISCORD_DEFAULT_CHANNEL, '']  # List of channel IDs that the bot will listen and reply to
+DISCORD_NOW_PLAYING = ''
 ENABLE_STARTUP_MSG = True
 ENABLE_AFK_EVENT = False
 ENABLE_DB_UPDATE_MSG = False
