@@ -64,6 +64,9 @@ async def on_message(message):
     global channel
     global min_role
 
+    if message.channel.is_private:
+        logger.info('{}: {}'.format(message.channel, message.content))
+
     if message.content.startswith('!'):
         if message.channel.id in config.DISCORD_LISTEN_CHANNELS or message.channel.is_private:
                 author_is_admin = False
