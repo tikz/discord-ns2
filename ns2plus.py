@@ -228,6 +228,23 @@ class Stats():
             awards['commander_eject'] = _queryFetch(queries.AWARD_COMMANDER_EJECT)
         return awards
 
+    def get_top(self, type):
+        if type == 'melee':
+            query = queries.TOP10_MELEE
+        elif type == 'kdr':
+            query = queries.TOP10_KDR
+        elif type == 'rifle':
+            query = queries.TOP10_RIFLE
+        elif type == 'comm':
+            query = queries.TOP10_COMM
+        else:
+            raise ValueError('Query does not exists')
+        with Database() as db:
+            results = [dict(ix) for ix in db.execute(query).fetchall()]
+            top10 = []
+            for i, r in enumerate(results, 1):
+                top10.append('{}. **{}** (*{}*)'.format(i, r['playerName'], round(r['value'], 1)))
+            return top10
+
 loop = asyncio.get_event_loop()
 stats = Stats(loop)
-stats.get_awards()

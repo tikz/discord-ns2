@@ -37,6 +37,7 @@ class HelpEmbed(Embed):
         if config.ENABLE_STATS:
             self.description += '**!player** *nick* \tVer estadísticas alien y marine del jugador\n'
             self.description += '**!comm** *nick* \t Ver estadísticas de commander marine del jugador\n'
+            self.description += '**!top10** *kdr/rifle/melee/comm* \t Ver el respectivo top 10 de jugadores\n'
         self.color = 0xD0021B
 
 
@@ -189,6 +190,31 @@ class NS2IDEmbed(Embed):
             self.description = 'No se reconoce la entrada.'
         self.color = 0xD0021B
 
+class TopEmbed(Embed):
+    def __init__(self, type):
+        super().__init__()
+        try:
+            top = ns2plus.stats.get_top(type)
+        except:
+            self.description = 'No se encontro el top 10 para **{}**.'.format(type)
+        else:
+            if type == 'kdr':
+                self.set_author(name='TOP 10 Kills/deaths', icon_url=config.BOT_ICON_URL)
+                self.title = 'Para jugadores con >20 partidas'
+            if type == 'melee':
+                self.set_author(name='TOP 10 Melee accuracy promedio ponderado', icon_url=config.BOT_ICON_URL)
+                self.title = 'Para jugadores con >20 partidas'
+            if type == 'rifle':
+                self.set_author(name='TOP 10 Rifle accuracy', icon_url=config.BOT_ICON_URL)
+                self.title = 'Para jugadores con >20 partidas'
+            if type == 'comm':
+                self.set_author(name='TOP 10 Commander winrate', icon_url=config.BOT_ICON_URL)
+                self.title = 'Para jugadores con >10 partidas'
+            try:
+                self.description = '\n'.join(top)
+            except:
+                self.description = 'Hubo un error al obtener el top 10.'
+        self.color = 0x66D9EF
 
 def logs_response(input):
     logs.sync()

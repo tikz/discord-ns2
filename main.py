@@ -101,6 +101,15 @@ async def on_message(message):
                     else:
                         await client.send_message(message.channel, embed=templates.PlayerEmbed(player))
 
+                elif message.content.startswith('!top10') and config.ENABLE_STATS:
+                    params = message.content.split('!top10 ')
+                    try:
+                        type = params[1]
+                    except:
+                        await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                    else:
+                        await client.send_message(message.channel, embed=templates.TopEmbed(type))
+
                 elif message.content.startswith('!ns2id') and author_is_admin:
                     params = message.content.split('!ns2id ')
                     try:
@@ -190,9 +199,7 @@ async def ns2plus_watcher():
                     response = json.loads(await r.read())
                     match_id = int(response[0]['count'])
                     if last_match_id != match_id and last_match_id is not None:
-                        if config.ENABLE_DB_UPDATE_MSG:
-                            msg = 'Nueva ronda con ID {}. Actualizando DB.'.format(match_id)
-                            await client.send_message(admin_channel, embed=templates.ResponseEmbed(msg))
+                        logger.info('New round with ID {}. Fetching ns2plus DB...'.format(match_id))
                         await ns2plus.stats.update()
                     last_match_id = match_id
         except Exception as e:
