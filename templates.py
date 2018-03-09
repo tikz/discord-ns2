@@ -207,6 +207,9 @@ class TopEmbed(Embed):
             if type == 'rifle':
                 self.set_author(name='TOP 10 Rifle accuracy', icon_url=config.BOT_ICON_URL)
                 self.title = 'Para jugadores con >20 partidas'
+            if type == 'shotgun':
+                self.set_author(name='TOP 10 Shotgun accuracy', icon_url=config.BOT_ICON_URL)
+                self.title = 'Para jugadores con >20 partidas'
             if type == 'comm':
                 self.set_author(name='TOP 10 Commander winrate', icon_url=config.BOT_ICON_URL)
                 self.title = 'Para jugadores con >10 partidas'
