@@ -240,29 +240,62 @@ class AwardsEmbed(Embed):
 
         self.description = ''
 
-        self.description += '**El rompehuevos** \n'
-        self.description += '`{}` pisó {} huevos con alguien respawneando. \n\n'.format(*awards['exo_egg'])
-
-        self.description += '**Saquenlo por cesarea** \n'
-        self.description += '`{}` jugó {} de huevo. \n\n'.format(*awards['embryo'])
-
-        self.description += '**Mi clase favorita** \n'
-        self.description += '`{}` estuvo {} muerto. \n\n'.format(*awards['dead'])
-
         self.description += '**THE MEATGRINDER** \n'
         self.description += '{1} almas sacrificadas al dios {0}. \n\n'.format(*awards['killing_place'])
 
-        self.description += '**asd** \n'
+        self.description += '**El Hombre Omelette** \n'
+        self.description += '`{}` pisó {} huevos con alguien respawneando. \n\n'.format(*awards['exo_egg'])
+
+        self.description += '**Big Game Hunter** \n'
+        self.description += '`{}` mató {} onos. \n\n'.format(*awards['onos_killer'])
+
+        self.description += '**If It Bleeds...** \n'
+        self.description += '`{}` mató {} fades. \n\n'.format(*awards['fade_killer'])
+
+        self.description += '**No Fly Zone** \n'
+        self.description += '`{}` mató {} lerks. \n\n'.format(*awards['lerk_killer'])
+
+        self.description += '**The Handyman** \n'
+        self.description += '`{}` mató a {} con welder. \n\n'.format(*awards['welder_kills'])
+
+        self.description += '**parasite** \n'
+        self.description += '`{}` mató a {} con parasite. \n\n'.format(*awards['parasite_kills'])
+
+        self.description += '**Colgate pls** \n'
+        self.description += '`{}` mató a {} con spray de gorge. \n\n'.format(*awards['spray_kills'])
+
+        self.description += '**Dungeon Master** \n'
+        self.description += '`{}` mató a {} con whips. \n\n'.format(*awards['whip_kills'])
+
+        self.description += '**100% accuracy** \n'
+        self.description += '`{}` mató a {} con sentries. \n\n'.format(*awards['sentry_kills'])
+
+        self.description += '**Pearl Harbor** \n'
+        self.description += '`{}` lerkeó, mató a 1 y perdió la lifeform, todo en {}. \n\n'.format(*awards['1_kill_lerk'])
+
+        self.description += '**The Boomstick Award** \n'
         self.description += '`{}` sacó shotguns en {} (y {}). \n\n'.format(*awards['shotgun_tech'])
 
-        self.description += '**asd** \n'
+        self.description += '**Zerg Rush** \n'
         self.description += '`{}` sacó segunda hive en {} (y {}). \n\n'.format(*awards['2nd_hive'])
 
         self.description += '**La primera es gratis** \n'
         self.description += '`{}` sacó catpacks en {} (y {}). \n\n'.format(*awards['catpack_tech'])
 
-        self.description += '**asd** \n'
+        self.description += '**GOLIATH ONLINE** \n'
+        self.description += '`{}` sacó exos en {} (y {}). \n\n'.format(*awards['exo_tech'])
+
+        self.description += '**Come Fly with Me** \n'
+        self.description += '`{}` sacó jetpacks en {} (y {}). \n\n'.format(*awards['jp_tech'])
+
+        self.description += '**El Demoledor** \n'
+        self.description += '`{}` sacó grenade launcher en {} (y {}). \n\n'.format(*awards['gl_tech'])
+
+        self.description += '**GladOS** \n'
         self.description += '`{}` tiró el primer phase gate en {} (y {}). \n\n'.format(*awards['phase_gate'])
+
+        self.description += '**Drop that Bass** \n'
+        self.description += '`{}` sacó el primer ARC en {} (y {}). \n\n'.format(*awards['arc'])
 
         self.description += '**El kick mas rápido del oeste** \n'
         self.description += '`{}` se metió a commear y lo rajaron en {}. \n\n'.format(*awards['commander_eject'])

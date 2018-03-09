@@ -127,6 +127,13 @@ class Stats():
 
         with Database() as db:
             try:
+                query = queries.FROM_ROUND.format(steam_id)
+                results = [dict(ix) for ix in db.execute(query).fetchall()]
+            except:
+                raise ValueError
+            else:
+                from_round_id = results[0]['roundId']
+            try:
                 query = queries.PLAYER_STATS.format(steam_id)
                 results = [dict(ix) for ix in db.execute(query).fetchall()]
                 stats = results[0]
@@ -140,7 +147,7 @@ class Stats():
                 player_stats['KDR'] = round(stats['kdr'], 1)
 
             try:
-                query = queries.PLAYER_ACC.format(steam_id)
+                query = queries.PLAYER_ACC.format(steam_id, from_round_id)
                 for ix in db.execute(query).fetchall():
                     row = dict(ix)
                     weapons[row['weapon']] = row
@@ -217,13 +224,27 @@ class Stats():
             awards['dead'] = _queryFetch(queries.AWARD_DEAD)
             awards['embryo'] = _queryFetch(queries.AWARD_EMBRYO)
             awards['exo_egg'] = _queryFetch(queries.AWARD_EXO_EGG)
+            awards['welder_kills'] = _queryFetch(queries.AWARD_WELDER_KILLS)
+            awards['parasite_kills'] = _queryFetch(queries.AWARD_PARASITE_KILLS)
+            awards['spray_kills'] = _queryFetch(queries.AWARD_SPRAY_KILLS)
+            awards['whip_kills'] = _queryFetch(queries.AWARD_WHIP_KILLS)
+            awards['sentry_kills'] = _queryFetch(queries.AWARD_SENTRY_KILLS)
+            awards['onos_killer'] = _queryFetch(queries.AWARD_ONOS_KILLER)
+            awards['fade_killer'] = _queryFetch(queries.AWARD_FADE_KILLER)
+            awards['lerk_killer'] = _queryFetch(queries.AWARD_LERK_KILLER)
+            awards['1_kill_lerk'] = _queryFetch(queries.AWARD_1KILL_LERK)
 
             awards['killing_place'] = _queryFetch(queries.AWARD_KILLING_PLACE)
 
             awards['2nd_hive'] = _queryFetch(queries.AWARD_2ND_HIVE)
-            #awards['catpack_tech'] = _queryFetch(queries.AWARD_CATPACK_TECH)
+            awards['exo_tech'] = _queryFetch(queries.AWARD_EXO_TECH)
+            awards['catpack_tech'] = _queryFetch(queries.AWARD_CATPACK_TECH)
             awards['shotgun_tech'] = _queryFetch(queries.AWARD_SHOTGUN_TECH)
+            awards['jp_tech'] = _queryFetch(queries.AWARD_JP_TECH)
+            awards['gl_tech'] = _queryFetch(queries.AWARD_GL_TECH)
+
             awards['phase_gate'] = _queryFetch(queries.AWARD_PHASE_GATE)
+            awards['arc'] = _queryFetch(queries.AWARD_ARC)
 
             awards['commander_eject'] = _queryFetch(queries.AWARD_COMMANDER_EJECT)
         return awards
@@ -235,6 +256,8 @@ class Stats():
             query = queries.TOP10_KDR
         elif type == 'rifle':
             query = queries.TOP10_RIFLE
+        elif type == 'shotgun':
+            query = queries.TOP10_SHOTGUN
         elif type == 'comm':
             query = queries.TOP10_COMM
         else:

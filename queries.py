@@ -1,10 +1,12 @@
+FROM_ROUND = 'select roundId from (select * from PlayerRoundStats where steamId = {} order by roundId desc limit 200) order by roundId asc limit 1'
+
 COMM_SUPPLIES = 'SELECT sum(medpackPicks) as medpackPicks, sum(medpackMisses) as medpackMisses, sum(ammopackPicks) as ammopackPicks, sum(ammopackMisses) as ammopackMisses, sum(catpackPicks) as catpackPicks, sum(catpackMisses) as catpackMisses, sum(medpackHitsAcc) as medpackHitsAcc from MarineCommStats where steamId = {}'
 
 COMM_WL = 'SELECT commanderWins, commanderLosses from PlayerStats where steamId = {}'
 
 COMM_MAPS = 'select ri.mapName, count(*) as wins from PlayerRoundStats as prs inner join RoundInfo as ri on ri.roundId = prs.roundId where prs.steamId = {} and prs.commanderTime > 600 and ri.winningTeam = prs.teamNumber group by ri.mapName order by wins desc limit 3'
 
-PLAYER_ACC = 'select *, 100.0*hits/(hits+misses) as accuracy from (select pws.steamId, pws.weapon, sum(pws.hits) as hits, sum(pws.misses) as misses, sum(pws.playerDamage) as playerDamage from PlayerWeaponStats pws where pws.steamId = {} group by pws.weapon) order by hits desc'
+PLAYER_ACC = 'select *, 100.0*hits/(hits+misses) as accuracy from (select pws.steamId, pws.weapon, sum(pws.hits) as hits, sum(pws.misses) as misses, sum(pws.playerDamage) as playerDamage from PlayerWeaponStats pws where pws.steamId = {} and pws.roundId > {} group by pws.weapon) order by hits desc'
 
 PLAYER_STATS = 'SELECT steamId, playerName, hiveSkill, wins, losses, 1.0*kills/deaths as kdr from PlayerStats where steamId = {}'
 
@@ -19,15 +21,32 @@ AWARD_PARASITE = 'select ps.playerName, sum(pws.hits) as hits from PlayerWeaponS
 AWARD_EXO_EGG = 'select ps.playerName, sum(pws.kills) as kills from PlayerWeaponStats pws inner join PlayerStats ps on ps.steamId = pws.steamId where pws.weapon = "Exo" group by pws.steamId order by kills desc limit 1'
 AWARD_COMMANDER_EJECT = 'select playerName, commanderTime as time from PlayerRoundStats prs inner join RoundInfo ri on ri.roundId = prs.roundId where commanderTime > 0 order by commanderTime asc limit 1'
 
+AWARD_1KILL_LERK = 'select prs.playerName, pcs.classTime as time from PlayerClassStats pcs inner join PlayerRoundStats prs on prs.steamId = pcs.steamId and prs.roundId = pcs.roundId inner join PlayerWeaponStats pws on pws.steamId = pcs.steamId and pws.roundId = pcs.roundId and pws.weapon = "LerkBite" and pws.kills = 1  where pcs.class = "Lerk" order by pcs.classTime asc limit 1'
+
+_AWARD_WEAPON_KILLS = 'select ps.playerName, sum(pws.kills) as kills from PlayerWeaponStats pws inner join PlayerStats ps on ps.steamId = pws.steamId where pws.weapon like "%{}%" group by pws.steamId order by kills desc'
 _AWARD_RUSH_TECH = 'select playerName, r.gameTime time, ri.winningTeam as win{} from Research r inner join PlayerRoundStats prs on prs.roundId = r.roundId and prs.commanderTime > 0 and prs.teamNumber = 1 inner join RoundInfo ri on ri.roundId = r.roundId where r.researchId = "{}" order by r.gameTime asc'
 _AWARD_RUSH_BUILDING = 'select prs.playerName, b.gameTime as time, ri.winningTeam as win{} from Buildings b inner join PlayerRoundStats prs on prs.roundId = b.roundId and prs.commanderTime > 0 and prs.teamNumber = 2 inner join RoundInfo ri on ri.roundId = b.roundId where b.techId = "{}" and b.gameTime != 0 order by gameTime asc limit 1'
+_AWARD_CLASS_KILLER = 'select ps.playerName, count(*) c from KillFeed kf inner join PlayerStats ps on ps.steamId = kf.killerSteamId where kf.victimClass = "{}" group by ps.playerName order by c desc limit 1'
+AWARD_WELDER_KILLS = _AWARD_WEAPON_KILLS.format('Welder')
+AWARD_PARASITE_KILLS = _AWARD_WEAPON_KILLS.format('Parasite')
+AWARD_SPRAY_KILLS = _AWARD_WEAPON_KILLS.format('Spray')
+AWARD_SENTRY_KILLS = _AWARD_WEAPON_KILLS.format('Sentry')
+AWARD_WHIP_KILLS = _AWARD_WEAPON_KILLS.format('Whip')
+AWARD_ONOS_KILLER = _AWARD_CLASS_KILLER.format('Onos')
+AWARD_FADE_KILLER = _AWARD_CLASS_KILLER.format('Fade')
+AWARD_LERK_KILLER = _AWARD_CLASS_KILLER.format('Lerk')
 AWARD_SHOTGUN_TECH = _AWARD_RUSH_TECH.format('marine', 'ShotgunTech')
-AWARD_CATPACK_TECH = _AWARD_RUSH_TECH.format('marine', 'CatpackTech')
+AWARD_CATPACK_TECH = _AWARD_RUSH_TECH.format('marine', 'CatPackTech')
+AWARD_EXO_TECH = _AWARD_RUSH_TECH.format('marine', 'ExosuitTech')
+AWARD_JP_TECH = _AWARD_RUSH_TECH.format('marine', 'JetpackTech')
+AWARD_GL_TECH = _AWARD_RUSH_TECH.format('marine', 'GrenadeLauncherTech')
+
 AWARD_ARC = _AWARD_RUSH_BUILDING.format('marine', 'ARC')
 AWARD_PHASE_GATE = _AWARD_RUSH_BUILDING.format('marine', 'PhaseGate')
 AWARD_2ND_HIVE = 'select prs.playerName, b.gameTime as time, ri.winningTeam as winalien from Buildings b inner join PlayerRoundStats prs on prs.roundId = b.roundId and prs.commanderTime > 0 and prs.teamNumber = 2 inner join RoundInfo ri on ri.roundId = b.roundId where b.techId = "Hive" and b.gameTime != 0 order by gameTime asc limit 1'
 
 TOP10_KDR = 'select playerName, 1.0*kills/deaths value from PlayerStats where roundsPlayed > 20 order by value desc limit 10'
 TOP10_RIFLE = 'select ps.playerName, 100.0*sum(pws.hits)/(sum(pws.hits)+sum(pws.misses)) value from PlayerWeaponStats pws inner join PlayerStats ps on ps.steamId = pws.steamId where pws.weapon = "Rifle" and ps.roundsPlayed > 20 group by pws.steamId order by value desc limit 10'
+TOP10_SHOTGUN = 'select ps.playerName, 100.0*sum(pws.hits)/(sum(pws.hits)+sum(pws.misses)) value from PlayerWeaponStats pws inner join PlayerStats ps on ps.steamId = pws.steamId where pws.weapon = "Shotgun" and ps.roundsPlayed > 20 group by pws.steamId order by value desc limit 10'
 TOP10_COMM = 'select playerName, 1.0*commanderWins/commanderLosses value from PlayerStats where commanderWins+commanderLosses > 10 order by value desc limit 10'
 TOP10_MELEE = 'select playerName, sum(acc*dmg)/sumdmg value from (select ps.playerName, pws.*, 100.0*sum(pws.hits)/(sum(pws.hits)+sum(pws.misses)) acc, sum(pws.playerDamage) dmg, sumdmg from PlayerWeaponStats pws inner join PlayerStats ps on ps.steamId = pws.steamId left join (select steamId, sum(playerDamage) sumdmg from PlayerWeaponStats where (weapon = "Bite" or weapon = "LerkBite" or weapon = "Swipe" or weapon = "Gore") group by steamId) pws2 on pws2.steamId = pws.steamId where (pws.weapon = "Bite" or pws.weapon = "LerkBite" or pws.weapon = "Swipe" or pws.weapon = "Gore") and ps.roundsPlayed > 20 group by pws.steamId, pws.weapon) group by steamId order by value desc limit 10'
