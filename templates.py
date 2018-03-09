@@ -37,7 +37,7 @@ class HelpEmbed(Embed):
         if config.ENABLE_STATS:
             self.description += '**!player** *nick* \tVer estadísticas alien y marine del jugador\n'
             self.description += '**!comm** *nick* \t Ver estadísticas de commander marine del jugador\n'
-            self.description += '**!top10** *kdr/rifle/melee/comm* \t Ver el respectivo top 10 de jugadores\n'
+            self.description += '**!top10** *kdr/rifle/shotgun/melee/comm* \t Ver el respectivo top 10 de jugadores\n'
         self.color = 0xD0021B
 
 
