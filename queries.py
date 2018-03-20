@@ -25,7 +25,7 @@ AWARD_1KILL_LERK = 'select prs.playerName, pcs.classTime as time from PlayerClas
 
 _AWARD_WEAPON_KILLS = 'select ps.playerName, sum(pws.kills) as kills from PlayerWeaponStats pws inner join PlayerStats ps on ps.steamId = pws.steamId where pws.weapon like "%{}%" group by pws.steamId order by kills desc'
 _AWARD_RUSH_TECH = 'select playerName, r.gameTime time, ri.winningTeam as win{} from Research r inner join (select *, max(commanderTime) from PlayerRoundStats where teamNumber = {} group by roundId) prs on prs.roundId = r.roundId inner join RoundInfo ri on ri.roundId = r.roundId where r.researchId = "{}" order by r.gameTime asc'
-_AWARD_RUSH_BUILDING = 'select prs.playerName, b.gameTime, ri.roundId, ri.mapName, ri.roundDate as time, ri.winningTeam as win{} from Buildings b inner join (select *, max(commanderTime) from PlayerRoundStats where teamNumber = {} group by roundId) prs on prs.roundId = b.roundId inner join RoundInfo ri on ri.roundId = b.roundId where b.techId = "{}" and b.gameTime != 0 order by gameTime asc'
+_AWARD_RUSH_BUILDING = 'select prs.playerName, b.gameTime as time, ri.winningTeam as win{} from Buildings b inner join (select *, max(commanderTime) from PlayerRoundStats where teamNumber = {} group by roundId) prs on prs.roundId = b.roundId inner join RoundInfo ri on ri.roundId = b.roundId where b.techId = "{}" and b.gameTime != 0 order by gameTime asc limit 1'
 _AWARD_CLASS_KILLER = 'select ps.playerName, count(*) c from KillFeed kf inner join PlayerStats ps on ps.steamId = kf.killerSteamId where kf.victimClass = "{}" group by ps.playerName order by c desc limit 1'
 AWARD_WELDER_KILLS = _AWARD_WEAPON_KILLS.format('Welder')
 AWARD_PARASITE_KILLS = _AWARD_WEAPON_KILLS.format('Parasite')
