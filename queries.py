@@ -35,15 +35,15 @@ AWARD_WHIP_KILLS = _AWARD_WEAPON_KILLS.format('Whip')
 AWARD_ONOS_KILLER = _AWARD_CLASS_KILLER.format('Onos')
 AWARD_FADE_KILLER = _AWARD_CLASS_KILLER.format('Fade')
 AWARD_LERK_KILLER = _AWARD_CLASS_KILLER.format('Lerk')
-AWARD_SHOTGUN_TECH = _AWARD_RUSH_TECH.format('marine', 'ShotgunTech')
-AWARD_CATPACK_TECH = _AWARD_RUSH_TECH.format('marine', 'CatPackTech')
-AWARD_EXO_TECH = _AWARD_RUSH_TECH.format('marine', 'ExosuitTech')
-AWARD_JP_TECH = _AWARD_RUSH_TECH.format('marine', 'JetpackTech')
-AWARD_GL_TECH = _AWARD_RUSH_TECH.format('marine', 'GrenadeLauncherTech')
+AWARD_SHOTGUN_TECH = _AWARD_RUSH_TECH.format('marine', 1, 'ShotgunTech')
+AWARD_CATPACK_TECH = _AWARD_RUSH_TECH.format('marine', 1, 'CatPackTech')
+AWARD_EXO_TECH = _AWARD_RUSH_TECH.format('marine', 1, 'ExosuitTech')
+AWARD_JP_TECH = _AWARD_RUSH_TECH.format('marine', 1, 'JetpackTech')
+AWARD_GL_TECH = _AWARD_RUSH_TECH.format('marine', 1, 'GrenadeLauncherTech')
 
-AWARD_ARC = _AWARD_RUSH_BUILDING.format('marine', 'ARC')
+AWARD_ARC = _AWARD_RUSH_BUILDING.format('marine', 1, 'ARC')
 AWARD_PHASE_GATE = _AWARD_RUSH_BUILDING.format('marine', 'PhaseGate')
-AWARD_2ND_HIVE = 'select prs.playerName, b.gameTime as time, ri.winningTeam as winalien from Buildings b inner join PlayerRoundStats prs on prs.roundId = b.roundId and prs.commanderTime > 0 and prs.teamNumber = 2 inner join RoundInfo ri on ri.roundId = b.roundId where b.techId = "Hive" and b.gameTime != 0 order by gameTime asc limit 1'
+AWARD_2ND_HIVE = _AWARD_RUSH_BUILDING.format('alien', 2, 'Hive')
 
 TOP10_KDR = 'select playerName, 1.0*kills/deaths value from PlayerStats where roundsPlayed > 20 order by value desc limit 10'
 TOP10_RIFLE = 'select ps.playerName, 100.0*sum(pws.hits)/(sum(pws.hits)+sum(pws.misses)) value from PlayerWeaponStats pws inner join PlayerStats ps on ps.steamId = pws.steamId where pws.weapon = "Rifle" and ps.roundsPlayed > 20 group by pws.steamId order by value desc limit 10'
