@@ -42,7 +42,7 @@ AWARD_JP_TECH = _AWARD_RUSH_TECH.format('marine', 1, 'JetpackTech')
 AWARD_GL_TECH = _AWARD_RUSH_TECH.format('marine', 1, 'GrenadeLauncherTech')
 
 AWARD_ARC = _AWARD_RUSH_BUILDING.format('marine', 1, 'ARC')
-AWARD_PHASE_GATE = _AWARD_RUSH_BUILDING.format('marine', 'PhaseGate')
+AWARD_PHASE_GATE = _AWARD_RUSH_BUILDING.format('marine', 1, 'PhaseGate')
 AWARD_2ND_HIVE = _AWARD_RUSH_BUILDING.format('alien', 2, 'Hive')
 
 TOP10_KDR = 'select playerName, 1.0*kills/deaths value from PlayerStats where roundsPlayed > 20 order by value desc limit 10'
