@@ -18,6 +18,9 @@ ENABLE_STATS = False
 WONITOR_URL = 'http://example.com/wonitor/'
 NS2STATS_DB_URL = 'http://example.com/wonitor/data/ns2plus.sqlite3'
 NS2STATS_ENABLE_UPDATES = True
+USERCONFIG_API_URL = 'http://api.example.com/api.php'
+USERCONFIG_SK = 'secret key setted in usermanagement plugin'
+USERCONFIG_SV = 'secret value setted in usermanagement plugin'
 
 ENABLE_FTP_LOGS = False
 FTP_ADDRESS = ''
@@ -25,6 +28,8 @@ FTP_USER = ''
 FTP_PASSWORD = ''
 FTP_LOGS_PATH = '/config/shine/logs'
 LOCAL_LOGS_PATH = './serverlogs/'
+
+WEBSERVER_PORT = 8001
 
 BOT_ICON_URL = 'https://i.imgur.com/DsxGVnu.jpg'
 

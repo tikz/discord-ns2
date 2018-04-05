@@ -10,6 +10,9 @@ MSG_EVENT_QUIT = ':red_circle: **{}** *salió del servidor* ({player_count}/{max
 MSG_EVENT_AFK = ':zzz: **{}** *está AFK*'
 MSG_EVENT_NAFK = ':zzz: **{}** *ya no está AFK*'
 MSG_EVENT_CHANGEMAP = ':large_orange_diamond: *Se cambió el mapa a* **{}**'
+MSG_CHAT = ':speech_balloon: [{}] **{}**: {}'
+POST_RESPONSE_CHAT = 'chat{}{}'
+POST_RESPONSE_RCON = 'rcon{}{}'
 
 import datetime
 import logging
@@ -21,6 +24,8 @@ import config
 import ns2plus
 import utils
 from server_logs import logs
+import requests
+import json
 
 tz = pytz.timezone(config.TIMEZONE)
 
@@ -190,6 +195,59 @@ class NS2IDEmbed(Embed):
             self.description = 'No se reconoce la entrada.'
         self.color = 0xD0021B
 
+
+class AddPlayerEmbed(Embed):
+    def __init__(self, input, author):
+        super().__init__()
+        try:
+            author_name = author.name
+        except:
+            author_name = author.nick
+
+        ns2id = utils.steam64_ns2id(input)
+        if ns2id:
+            try:
+                data = {'ID': str(ns2id), 'Data': {'Group': 'player', 'Author': author_name, 'Input': input}}
+                print(data)
+                payload = {'operation': 'EDIT_USER', 'data': json.dumps(data),
+                           config.USERCONFIG_SK: config.USERCONFIG_SV}
+                print(payload)
+                r = requests.post('http://ns2api.lag.party', data=payload).json()
+            except:
+                self.description = 'No se pudo conectar al servidor.'
+            else:
+                print(r)
+                if r['success'] == True:
+                    self.description = '**Agregado NS2ID {}** a la lista de jugadores habilitados.'.format(ns2id)
+                else:
+                    self.description = 'Hubo un error. {}'.format(r['msg'])
+        else:
+            self.description = 'No se pudo calcular el NS2ID del jugador.'
+
+        self.color = 0xD0021B
+
+
+class DelPlayerEmbed(Embed):
+    def __init__(self, input):
+        super().__init__()
+        try:
+            data = {'ID': str(input), 'Data': {'Group': 'player'}}
+            payload = {'operation': 'REMOVE_USER', 'data': json.dumps(data),
+                       config.USERCONFIG_SK: config.USERCONFIG_SV}
+            print(payload)
+            r = requests.post('http://ns2api.lag.party', data=payload).json()
+        except:
+            self.description = 'No se pudo conectar al servidor.'
+        else:
+            print(r)
+            if r['success'] == True:
+                self.description = '**Eliminado NS2ID {}** de la lista de jugadores habilitados.'.format(input)
+            else:
+                self.description = 'No se pudo eliminar. {} (¿lo que pusiste es un NS2ID capo?)'.format(r['msg'])
+
+        self.color = 0xD0021B
+
+
 class TopEmbed(Embed):
     def __init__(self, type):
         super().__init__()
@@ -218,6 +276,7 @@ class TopEmbed(Embed):
             except:
                 self.description = 'Hubo un error al obtener el top 10.'
         self.color = 0x66D9EF
+
 
 def logs_response(input):
     logs.sync()
@@ -274,7 +333,8 @@ class AwardsEmbed(Embed):
         self.description += '`{}` mató a {} con sentries. \n\n'.format(*awards['sentry_kills'])
 
         self.description += '**Pearl Harbor** \n'
-        self.description += '`{}` lerkeó, mató a 1 y perdió la lifeform, todo en {}. \n\n'.format(*awards['1_kill_lerk'])
+        self.description += '`{}` lerkeó, mató a 1 y perdió la lifeform, todo en {}. \n\n'.format(
+            *awards['1_kill_lerk'])
 
         self.description += '**The Boomstick Award** \n'
         self.description += '`{}` sacó shotguns en {} (y {}). \n\n'.format(*awards['shotgun_tech'])

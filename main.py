@@ -11,6 +11,7 @@ import ns2plus
 import templates
 import utils
 from game_server import GameServer
+from aiohttp import web
 
 logger = logging.getLogger(__name__)
 utils.logger_formatter(logger)
@@ -64,79 +65,117 @@ async def on_message(message):
     global channel
     global min_role
 
+    if client.user == message.author:
+        return
+
     if message.channel.is_private:
         logger.info('{}: {}'.format(message.channel, message.content))
 
-    if message.content.startswith('!'):
-        if message.channel.id in config.DISCORD_LISTEN_CHANNELS or message.channel.is_private:
-                author_is_admin = False
+    if message.channel.id in config.DISCORD_LISTEN_CHANNELS or message.channel.is_private:
+        if message.content.startswith('!'):
+            author_is_admin = False
 
-                for member in client.get_server(config.DISCORD_SERVER).members:
-                    if member == message.author:
-                        if member.top_role >= min_role:
-                            author_is_admin = True
-                        break
+            for member in client.get_server(config.DISCORD_SERVER).members:
+                if member == message.author:
+                    if member.top_role >= min_role:
+                        author_is_admin = True
+                    break
 
-                logger.info(templates.LOG_COMMAND_EXEC.format(message))
-                if message.content.startswith('!status'):
-                    status = game_server.status
+            logger.info(templates.LOG_COMMAND_EXEC.format(message))
+            if message.content.startswith('!status'):
+                status = game_server.status
 
-                    await client.send_message(message.channel, embed=templates.StatusEmbed(status))
+                await client.send_message(message.channel, embed=templates.StatusEmbed(status))
 
-                elif message.content.startswith('!comm') and config.ENABLE_STATS:
-                    params = message.content.split('!comm ')
-                    try:
-                        player = params[1]
-                    except:
-                        await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
-                    else:
-                        await client.send_message(message.channel, embed=templates.CommEmbed(player))
-
-                elif message.content.startswith('!player') and config.ENABLE_STATS:
-                    params = message.content.split('!player ')
-                    try:
-                        player = params[1]
-                    except:
-                        await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
-                    else:
-                        await client.send_message(message.channel, embed=templates.PlayerEmbed(player))
-
-                elif message.content.startswith('!top10') and config.ENABLE_STATS:
-                    params = message.content.split('!top10 ')
-                    try:
-                        type = params[1]
-                    except:
-                        await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
-                    else:
-                        await client.send_message(message.channel, embed=templates.TopEmbed(type))
-
-                elif message.content.startswith('!ns2id') and author_is_admin:
-                    params = message.content.split('!ns2id ')
-                    try:
-                        input = params[1]
-                    except:
-                        await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
-                    else:
-                        await client.send_message(message.channel, embed=templates.NS2IDEmbed(input))
-
-                elif message.content.startswith('!logs') and author_is_admin and config.ENABLE_FTP_LOGS:
-                    params = message.content.split('!logs ')
-                    try:
-                        pattern = params[1]
-                    except:
-                        await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
-                    else:
-                        tmp = await client.send_message(message.channel, '...')
-                        await client.edit_message(tmp, templates.logs_response(pattern))
-
-                elif message.content.startswith('!awards') and config.ENABLE_STATS:
-                    await client.send_message(message.channel, embed=templates.AwardsEmbed())
-
-                elif message.content.startswith('!help'):
-                    await client.send_message(message.channel, embed=templates.HelpEmbed())
-
+            elif message.content.startswith('!comm') and config.ENABLE_STATS:
+                params = message.content.split('!comm ')
+                try:
+                    player = params[1]
+                except:
+                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
                 else:
-                    await client.send_message(message.channel, templates.MSG_COMMAND_NOT_RECOGNIZED)
+                    await client.send_message(message.channel, embed=templates.CommEmbed(player))
+
+            elif message.content.startswith('!player') and config.ENABLE_STATS:
+                params = message.content.split('!player ')
+                try:
+                    player = params[1]
+                except:
+                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                else:
+                    await client.send_message(message.channel, embed=templates.PlayerEmbed(player))
+
+            elif message.content.startswith('!top10') and config.ENABLE_STATS:
+                params = message.content.split('!top10 ')
+                try:
+                    type = params[1]
+                except:
+                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                else:
+                    await client.send_message(message.channel, embed=templates.TopEmbed(type))
+
+            elif message.content.startswith('!ns2id') and author_is_admin:
+                params = message.content.split('!ns2id ')
+                try:
+                    input = params[1]
+                except:
+                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                else:
+                    await client.send_message(message.channel, embed=templates.NS2IDEmbed(input))
+
+            elif message.content.startswith('!addplayer') and author_is_admin:
+                params = message.content.split('!addplayer ')
+                try:
+                    input = params[1]
+                except:
+                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                else:
+                    await client.send_message(message.channel,
+                                              embed=templates.AddPlayerEmbed(input, message.author))
+            elif message.content.startswith('!delplayer') and author_is_admin:
+                params = message.content.split('!delplayer ')
+                try:
+                    input = params[1]
+                except:
+                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                else:
+                    await client.send_message(message.channel, embed=templates.DelPlayerEmbed(input))
+            elif message.content.startswith('!logs') and author_is_admin and config.ENABLE_FTP_LOGS:
+                params = message.content.split('!logs ')
+                try:
+                    pattern = params[1]
+                except:
+                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                else:
+                    tmp = await client.send_message(message.channel, '...')
+                    await client.edit_message(tmp, templates.logs_response(pattern))
+
+            elif message.content.startswith('!awards') and config.ENABLE_STATS:
+                await client.send_message(message.channel, embed=templates.AwardsEmbed())
+
+            elif message.content.startswith('!say') and author_is_admin:
+                params = message.content.split('!say ')
+                try:
+                    input = params[1]
+                except:
+                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                else:
+                    server_msg_queue.append(templates.POST_RESPONSE_CHAT.format(message.author, input))
+
+            elif message.content.startswith('!rcon') and author_is_admin:
+                params = message.content.split('!rcon ')
+                try:
+                    input = params[1]
+                except:
+                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                else:
+                    server_msg_queue.append(templates.POST_RESPONSE_RCON.format(message.author, input))
+
+            elif message.content.startswith('!help'):
+                await client.send_message(message.channel, embed=templates.HelpEmbed())
+
+            else:
+                await client.send_message(message.channel, templates.MSG_COMMAND_NOT_RECOGNIZED)
 
 
 async def on_gameserver_event(event):
@@ -203,15 +242,43 @@ async def ns2plus_watcher():
                         await ns2plus.stats.update()
                     last_match_id = match_id
         except Exception as e:
-            logger.error(e)
+            pass
         else:
             await asyncio.sleep(5)
+
+
+server_msg_queue = []
+
+
+async def bridge_endpoint(request):
+    data = await request.post()
+
+    if 'type' in data:
+        if data['type'] == 'chat':
+            teams = {'0': 'RR', '1': 'M', '2': 'A', '3': 'S'}
+            await client.send_message(channel,
+                                      templates.MSG_CHAT.format(teams[data['team']], data['plyr'], data['msg']))
+
+    if server_msg_queue:
+        msg = server_msg_queue[0]
+        server_msg_queue.pop(0)
+        return web.Response(text=msg)
+    else:
+        return web.Response()
+
+
+async def init_webserver(loop):
+    app = web.Application(loop=loop)
+    app.router.add_route('*', '/', bridge_endpoint)
+    return app
 
 
 game_server = GameServer(loop, event_handler=on_gameserver_event)
 
 while True:
     try:
-        client.run(config.DISCORD_TOKEN)
+        asyncio.ensure_future(client.start(config.DISCORD_TOKEN))
+        app = loop.run_until_complete(init_webserver(loop))
+        web.run_app(app, host='0.0.0.0', port=config.WEBSERVER_PORT)
     except Exception as e:
         logger.error(e)

@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from valve.steam.id import SteamID
 
 import templates
+import re
 
 
 def logger_formatter(logger):
@@ -54,6 +55,9 @@ def steam64_ns2id(i):
         elif 'STEAM_0' in i:
             profile = SteamID.from_text(i)
         else:
+            if 'id' in i:
+                r = requests.get(i).text
+                i = re.search('steamid...([0-9]*)', r).group(1)
             profile = SteamID.from_text('STEAM_0:1:{}'.format(int((int(i) - 76561197960265728) / 2)))
     except Exception as e:
         logger.error(e)

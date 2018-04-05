@@ -1,12 +1,12 @@
-# Project specific
+         # Project specific
 config.py
 config_prod.py
-test.py
-test*.py
+test*
 *.sqlite
 *.sqlite3
 serverlogs/
 serverlogs/*
+local/*
 
 
 # Byte-compiled / optimized / DLL files
