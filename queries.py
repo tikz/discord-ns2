@@ -4,12 +4,11 @@ COMM_WL = 'SELECT commanderWins, commanderLosses from PlayerStats where steamId 
 
 COMM_MAPS = 'select ri.mapName, count(*) as wins from PlayerRoundStats as prs inner join RoundInfo as ri on ri.roundId = prs.roundId where prs.steamId = {} and prs.commanderTime > 600 and ri.winningTeam = prs.teamNumber group by ri.mapName order by wins desc limit 3'
 
-PLAYER_ACC = 'select *, 100.0*(hits-onosHits)/(hits+misses-onosHits) as accuracy from (select pws.steamId, pws.weapon, sum(pws.hits) as hits, sum(pws.misses) as misses, sum(pws.onosHits) as onosHits, sum(pws.playerDamage) as playerDamage from PlayerWeaponStats pws where pws.steamId = {} and pws.roundId > {} group by pws.weapon) order by hits desc'
-
 WEAPON_LIST = 'select weapon from PlayerWeaponStats group by weapon'
 PLAYER_ACC = 'select * from PlayerWeaponStats where steamId = {}'
+PLAYER_KDR = 'select *, 1.0*kills/deaths kdr from PlayerRoundStats where steamId = {} and kdr != 0 and kdr is not null'
 
-PLAYER_STATS = 'SELECT steamId, playerName, hiveSkill, wins, losses, 1.0*kills/deaths as kdr from PlayerStats where steamId = {}'
+PLAYER_STATS = 'SELECT steamId, playerName, hiveSkill, wins, losses from PlayerStats where steamId = {}'
 
 PLAYER_MAPS = 'select wins.mapName, 100.0*wins/(wins+losses) as wl, wins+losses as playcount from (select ri.mapName, count(*) as wins from PlayerRoundStats as prs inner join RoundInfo as ri on ri.roundId = prs.roundId where prs.steamId = {0} and ri.winningTeam = prs.teamNumber group by ri.mapName) wins inner join (select ri.mapName, count(*) as losses from PlayerRoundStats as prs inner join RoundInfo as ri on ri.roundId = prs.roundId  where prs.steamId = {0} and ri.winningTeam != prs.teamNumber group by ri.mapName) losses on wins.mapName = losses.mapName where playcount > 10 order by wl desc limit 3'
 

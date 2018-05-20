@@ -4,6 +4,7 @@ LOG_COMMAND_EXEC = '{0.author} ejecutó el comando {0.content} en {0.channel}'
 
 MSG_ON_CONNECT = ':robot: Iniciado'
 MSG_COMMAND_NOT_RECOGNIZED = 'Comando no reconocido. Para ver la lista de comandos: **!help**'
+MSG_COMMAND_ERROR = 'Hubo un error al procesar el comando'
 MSG_COMMAND_REQUIRES_PARAMS = 'El comando requiere parametros. Para ver la lista de comandos: **!help**'
 MSG_EVENT_JOIN = ':large_blue_circle: **{}** *entró al servidor* ({player_count}/{max_players})'
 MSG_EVENT_QUIT = ':red_circle: **{}** *salió del servidor* ({player_count}/{max_players})'
@@ -177,6 +178,16 @@ class PlayerEmbed(Embed):
         except Exception as e:
             self.description = 'No se encuentra el jugador.'
             logger.error(e)
+
+
+class Chart(Embed):
+    def __init__(self, player, type):
+        super().__init__()
+        self.player = player
+        self.type = type
+
+    def image(self):
+        return ns2plus.stats.get_player_chart(self.player, self.type)
 
 
 class ResponseEmbed(Embed):

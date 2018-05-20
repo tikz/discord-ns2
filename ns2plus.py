@@ -1,15 +1,19 @@
 import asyncio
 import logging
 import sqlite3
+import statistics
 
 import aiohttp
+import matplotlib.pyplot as plt
+import numpy as np
 from requests.structures import CaseInsensitiveDict
+from scipy.stats import norm
+import io
 
 import config
 import queries
 import templates
 import utils
-import statistics
 
 logger = logging.getLogger(__name__)
 utils.logger_formatter(logger)
@@ -111,7 +115,15 @@ class Stats():
                 player_stats['Steam ID'] = stats['steamId']
                 player_stats['Hive Skill'] = stats['hiveSkill']
                 player_stats['Wins'] = self._percent_formatter(stats['wins'], stats['losses'])
-                player_stats['KDR'] = round(stats['kdr'], 1)
+
+
+            try:
+                query = queries.PLAYER_KDR.format(steam_id)
+                kdr_per_match = [dict(ix)['kdr'] for ix in db.execute(query).fetchall()]
+            except:
+                pass
+            else:
+                player_stats['KDR'] = round(statistics.mean(kdr_per_match), 2)
 
             #try:
 
@@ -156,6 +168,70 @@ class Stats():
             player_stats['Alien Melee Accuracy'] = '{}%'.format(round(alien_acc_melee_wavg, 1))
 
         return player_stats
+
+
+    def get_player_chart(self, player, type):
+        if player in self.steam_ids:
+            steam_id = self.steam_ids[player]
+        else:
+            raise ValueError
+
+        if type == 'kdr':
+            fig, ax = plt.subplots()
+
+            with Database() as db:
+                results = [dict(ix) for ix in db.execute(queries.PLAYER_KDR.format(steam_id)).fetchall()]
+            data = np.array([x['kdr'] for x in results])
+            mu, std = norm.fit(data)
+
+            xmin, xmax = 0, max(data)
+            values, bins, _ = ax.hist(data, bins=np.arange(xmin, xmax, 0.2), density=1, alpha=0.6, color='g')
+            index_1 = next(x[0] for x in enumerate(bins) if x[1] > 1.0)
+            area = sum(np.diff([x for x in bins[index_1:] if x > 1]) * values[index_1:])
+
+            ax.set_title("P(KDR≥1) = %.2f" % (area))
+            ax.axvline(1, color='black', linestyle='dashed', linewidth=1)
+            ax.axvline(mu, color='r', linestyle='dashed', linewidth=1)
+            ax.set_xlabel('KDR')
+
+            img = io.BytesIO()
+            fig.savefig(img, format='png')
+            plt.close(fig)
+            img.seek(0)
+
+            return img
+
+        else:
+            weapon_stats = self._player_weapon_stats(steam_id)
+            if type.title() in weapon_stats:
+                fig, ax = plt.subplots()
+                weapon = type.title()
+                data = np.array([x*100 for x in weapon_stats[weapon]['data']])
+
+                mu, std = norm.fit(data)
+                n = len(data)
+
+                xmin, xmax = 0, max(data)
+                ax.hist(data, bins=np.arange(xmin, xmax, 2), density=1, alpha=0.6, color='g')
+                x = np.linspace(xmin, xmax, 100)
+                p = norm.pdf(x, mu, std)
+                ax.plot(x, p, 'k', linewidth=2)
+
+                title = "%s: μ = %.2f,  σ = %.2f, N= %i" % (weapon, mu, std, n)
+                ax.set_title(title)
+                ax.axvline(mu + std, color='black', linestyle='dashed', linewidth=1)
+                ax.axvline(mu - std, color='black', linestyle='dashed', linewidth=1)
+                ax.axvline(mu, color='r', linestyle='dashed', linewidth=1)
+                ax.set_xlabel('Accuracy')
+
+                img = io.BytesIO()
+                fig.savefig(img, format='png')
+                plt.close(fig)
+                img.seek(0)
+
+                return img
+            else:
+                raise ValueError
 
     def get_comm_stats(self, player):
         if player in self.steam_ids:

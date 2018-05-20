@@ -5,13 +5,13 @@ from collections import namedtuple
 
 import aiohttp
 import discord
+from aiohttp import web
 
 import config
 import ns2plus
 import templates
 import utils
 from game_server import GameServer
-from aiohttp import web
 
 logger = logging.getLogger(__name__)
 utils.logger_formatter(logger)
@@ -104,6 +104,21 @@ async def on_message(message):
                     await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
                 else:
                     await client.send_message(message.channel, embed=templates.PlayerEmbed(player))
+
+            elif message.content.startswith('!chart') and config.ENABLE_STATS:
+                params = message.content.split(' ')
+                try:
+                    player = params[1]
+                    type = params[2]
+                except:
+                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                else:
+                    try:
+                        await client.send_file(message.channel, templates.Chart(player, type).image(),
+                                               filename='{}_{}.png'.format(player, type))
+                    except:
+                        await client.send_message(message.channel, templates.MSG_COMMAND_ERROR)
+
 
             elif message.content.startswith('!top10') and config.ENABLE_STATS:
                 params = message.content.split('!top10 ')
