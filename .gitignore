@@ -1,4 +1,4 @@
-         # Project specific
+# Project specific
 config.py
 config_prod.py
 test*

@@ -9,6 +9,7 @@ import config
 import queries
 import templates
 import utils
+import statistics
 
 logger = logging.getLogger(__name__)
 utils.logger_formatter(logger)
@@ -68,6 +69,101 @@ class Stats():
         b = sum([y for _, y in l])
         return a / b
 
+    def _player_weapon_stats(self, steam_id):
+        weapons = {}
+        with Database() as db:
+            weapon_list = [dict(ix)['weapon'] for ix in db.execute(queries.WEAPON_LIST).fetchall()]
+            round_weapon = [dict(ix) for ix in db.execute(queries.PLAYER_ACC.format(steam_id)).fetchall()]
+
+            for weapon in weapon_list:
+                accuracies = [(x['hits'] - x['onosHits']) / (x['hits'] + x['misses'] - x['onosHits'])
+                              for x in round_weapon if x['weapon'] == weapon
+                              and (x['hits'] + x['misses'] - x['onosHits']) != 0
+                              and (x['hits'] - x['onosHits']) != 0]
+                player_dmg = sum([x['playerDamage'] for x in round_weapon
+                                  if x['weapon'] == weapon and x['playerDamage']])
+                if len(accuracies) > 2:
+                    weapons[weapon] = {
+                        'acc_avg': statistics.mean(accuracies),
+                        'acc_std': statistics.pstdev(accuracies),
+                        'player_dmg': player_dmg,
+                        'data': accuracies
+                    }
+        return weapons
+
+    def get_player_stats(self, player):
+        if player in self.steam_ids:
+            steam_id = self.steam_ids[player]
+        else:
+            raise ValueError
+
+        player_stats = {'marine': {}, 'alien': {}}
+
+        with Database() as db:
+            try:
+                query = queries.FROM_ROUND.format(steam_id)
+                results = [dict(ix) for ix in db.execute(query).fetchall()]
+            except:
+                raise ValueError
+            else:
+                from_round_id = results[0]['roundId']
+            try:
+                query = queries.PLAYER_STATS.format(steam_id)
+                results = [dict(ix) for ix in db.execute(query).fetchall()]
+                stats = results[0]
+            except:
+                pass
+            else:
+                player_stats['Name'] = stats['playerName']
+                player_stats['Steam ID'] = stats['steamId']
+                player_stats['Hive Skill'] = stats['hiveSkill']
+                player_stats['Wins'] = self._percent_formatter(stats['wins'], stats['losses'])
+                player_stats['KDR'] = round(stats['kdr'], 1)
+
+            #try:
+
+            weapons = self._player_weapon_stats(steam_id)
+
+            marine_weapons = ['Rifle', 'Pistol', 'Shotgun']
+            alien_weapons = ['Bite', 'Swipe', 'Gore', 'Spikes', 'LerkBite']
+
+            for weapon in marine_weapons:
+                try:
+                    player_stats['marine'][weapon + ' Accuracy'] = '{}% (σ={}%)'.format(
+                        round(weapons[weapon]['acc_avg']*100, 1),
+                        round(weapons[weapon]['acc_std'] * 100, 1))
+                except:
+                    pass
+            for weapon in alien_weapons:
+                try:
+                    player_stats['alien'][weapon + ' Accuracy'] = '{}% (σ={}%)'.format(
+                        round(weapons[weapon]['acc_avg']*100, 1),
+                        round(weapons[weapon]['acc_std'] * 100, 1))
+                except:
+                    pass
+
+            # Only run weighted average with weapons that the player has used.
+            available_marine_weapons = []
+            available_alien_weapons = []
+
+            wavg_marine_weapons = ['Rifle', 'Pistol', 'Shotgun']
+            wavg_alien_weapons = ['Bite', 'Swipe', 'Gore', 'LerkBite']
+
+            for weapon in wavg_marine_weapons:
+                if weapon in weapons:
+                    available_marine_weapons.append((weapons[weapon]['acc_avg']*100, weapons[weapon]['player_dmg']))
+            for weapon in wavg_alien_weapons:
+                if weapon in weapons:
+                    available_alien_weapons.append((weapons[weapon]['acc_avg']*100, weapons[weapon]['player_dmg']))
+
+            marine_acc_wavg = self._weighted_avg(available_marine_weapons)
+            alien_acc_melee_wavg = self._weighted_avg(available_alien_weapons)
+
+            player_stats['Marine Accuracy'] = '{}%'.format(round(marine_acc_wavg, 1))
+            player_stats['Alien Melee Accuracy'] = '{}%'.format(round(alien_acc_melee_wavg, 1))
+
+        return player_stats
+
     def get_comm_stats(self, player):
         if player in self.steam_ids:
             steam_id = self.steam_ids[player]
@@ -115,82 +211,6 @@ class Stats():
                                                                                        supply['catpackMisses'])
 
         return comm_stats
-
-    def get_player_stats(self, player):
-        if player in self.steam_ids:
-            steam_id = self.steam_ids[player]
-        else:
-            raise ValueError
-
-        player_stats = {'marine': {}, 'alien': {}}
-        weapons = {}
-
-        with Database() as db:
-            try:
-                query = queries.FROM_ROUND.format(steam_id)
-                results = [dict(ix) for ix in db.execute(query).fetchall()]
-            except:
-                raise ValueError
-            else:
-                from_round_id = results[0]['roundId']
-            try:
-                query = queries.PLAYER_STATS.format(steam_id)
-                results = [dict(ix) for ix in db.execute(query).fetchall()]
-                stats = results[0]
-            except:
-                pass
-            else:
-                player_stats['Name'] = stats['playerName']
-                player_stats['Steam ID'] = stats['steamId']
-                player_stats['Hive Skill'] = stats['hiveSkill']
-                player_stats['Wins'] = self._percent_formatter(stats['wins'], stats['losses'])
-                player_stats['KDR'] = round(stats['kdr'], 1)
-
-            try:
-                query = queries.PLAYER_ACC.format(steam_id, from_round_id)
-                for ix in db.execute(query).fetchall():
-                    row = dict(ix)
-                    weapons[row['weapon']] = row
-            except:
-                pass
-            else:
-                marine_weapons = ['Rifle', 'Pistol', 'Shotgun']
-                alien_weapons = ['Bite', 'Swipe', 'Gore', 'Spikes', 'LerkBite']
-
-                for weapon in marine_weapons:
-                    try:
-                        player_stats['marine'][weapon + ' Accuracy'] = '{}%'.format(
-                            round(weapons[weapon]['accuracy'], 1))
-                    except:
-                        pass
-                for weapon in alien_weapons:
-                    try:
-                        player_stats['alien'][weapon + ' Accuracy'] = '{}%'.format(
-                            round(weapons[weapon]['accuracy'], 1))
-                    except:
-                        pass
-
-                # Only run weighted average with weapons that the player has used.
-                available_marine_weapons = []
-                available_alien_weapons = []
-
-                wavg_marine_weapons = ['Rifle', 'Pistol', 'Shotgun']
-                wavg_alien_weapons = ['Bite', 'Swipe', 'Gore', 'LerkBite']
-
-                for weapon in wavg_marine_weapons:
-                    if weapon in weapons:
-                        available_marine_weapons.append((weapons[weapon]['accuracy'], weapons[weapon]['playerDamage']))
-                for weapon in wavg_alien_weapons:
-                    if weapon in weapons:
-                        available_alien_weapons.append((weapons[weapon]['accuracy'], weapons[weapon]['playerDamage']))
-
-                marine_acc_wavg = self._weighted_avg(available_marine_weapons)
-                alien_acc_melee_wavg = self._weighted_avg(available_alien_weapons)
-
-                player_stats['Marine Accuracy'] = '{}%'.format(round(marine_acc_wavg, 1))
-                player_stats['Alien Melee Accuracy'] = '{}%'.format(round(alien_acc_melee_wavg, 1))
-
-        return player_stats
 
     def get_awards(self):
         def _queryFetch(query):
