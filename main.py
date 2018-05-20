@@ -275,7 +275,6 @@ async def init_webserver(loop):
 
 game_server = GameServer(loop, event_handler=on_gameserver_event)
 
-#client.run(config.DISCORD_TOKEN)
 while True:
     try:
         asyncio.ensure_future(client.start(config.DISCORD_TOKEN))

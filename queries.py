@@ -1,5 +1,3 @@
-FROM_ROUND = 'select roundId from (select * from PlayerRoundStats where steamId = {} order by roundId desc limit 200) order by roundId asc limit 1'
-
 COMM_SUPPLIES = 'SELECT sum(medpackPicks) as medpackPicks, sum(medpackMisses) as medpackMisses, sum(ammopackPicks) as ammopackPicks, sum(ammopackMisses) as ammopackMisses, sum(catpackPicks) as catpackPicks, sum(catpackMisses) as catpackMisses, sum(medpackHitsAcc) as medpackHitsAcc from MarineCommStats where steamId = {}'
 
 COMM_WL = 'SELECT commanderWins, commanderLosses from PlayerStats where steamId = {}'

@@ -101,13 +101,6 @@ class Stats():
 
         with Database() as db:
             try:
-                query = queries.FROM_ROUND.format(steam_id)
-                results = [dict(ix) for ix in db.execute(query).fetchall()]
-            except:
-                raise ValueError
-            else:
-                from_round_id = results[0]['roundId']
-            try:
                 query = queries.PLAYER_STATS.format(steam_id)
                 results = [dict(ix) for ix in db.execute(query).fetchall()]
                 stats = results[0]
