@@ -44,6 +44,8 @@ class HelpEmbed(Embed):
             self.description += '**!player** *nick* \tVer estadísticas alien y marine del jugador\n'
             self.description += '**!comm** *nick* \t Ver estadísticas de commander marine del jugador\n'
             self.description += '**!top10** *kdr/rifle/shotgun/melee/comm* \t Ver el respectivo top 10 de jugadores\n'
+            self.description += '**!chart** *nick* *kdr/rifle/bite/...*\n'
+            self.description += '**!awards**\n'
         self.color = 0xD0021B
 
 
