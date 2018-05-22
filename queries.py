@@ -9,6 +9,7 @@ PLAYER_ACC = 'select * from PlayerWeaponStats where steamId = {}'
 PLAYER_KDR = 'select *, 1.0*kills/deaths kdr from PlayerRoundStats where steamId = {} and kdr != 0 and kdr is not null'
 
 PLAYER_STATS = 'SELECT steamId, playerName, hiveSkill, wins, losses from PlayerStats where steamId = {}'
+PLAYER_LIFEFORM = 'select class, sum(classTime) time from PlayerClassStats where steamId = {} and (class = "Gorge" or class = "Lerk" or class = "Fade" or class = "Onos") group by class order by time desc limit 1'
 
 PLAYER_MAPS = 'select wins.mapName, 100.0*wins/(wins+losses) as wl, wins+losses as playcount from (select ri.mapName, count(*) as wins from PlayerRoundStats as prs inner join RoundInfo as ri on ri.roundId = prs.roundId where prs.steamId = {0} and ri.winningTeam = prs.teamNumber group by ri.mapName) wins inner join (select ri.mapName, count(*) as losses from PlayerRoundStats as prs inner join RoundInfo as ri on ri.roundId = prs.roundId  where prs.steamId = {0} and ri.winningTeam != prs.teamNumber group by ri.mapName) losses on wins.mapName = losses.mapName where playcount > 10 order by wl desc limit 3'
 

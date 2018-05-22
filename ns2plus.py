@@ -116,6 +116,14 @@ class Stats():
                 player_stats['Hive Skill'] = stats['hiveSkill']
                 player_stats['Wins'] = self._percent_formatter(stats['wins'], stats['losses'])
 
+            try:
+                query = queries.PLAYER_LIFEFORM.format(steam_id)
+                results = [dict(ix) for ix in db.execute(query).fetchall()]
+                stats = results[0]
+            except:
+                pass
+            else:
+                player_stats['Lifeform'] = stats['class']
 
             try:
                 query = queries.PLAYER_KDR.format(steam_id)

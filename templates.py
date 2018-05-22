@@ -173,7 +173,16 @@ class PlayerEmbed(Embed):
             for key in player_stats['alien'].keys():
                 self.add_field(name=key, value=player_stats['alien'][key], inline=True)
 
-            self.set_thumbnail(url='https://s3.amazonaws.com/ns2-wiki/thumb/7/7c/MAC.png/70px-MAC.png')
+            if player_stats['Lifeform'] == 'Gorge':
+                self.set_thumbnail(url='https://i.imgur.com/c70RH1h.png')
+            elif player_stats['Lifeform'] == 'Lerk':
+                self.set_thumbnail(url='https://i.imgur.com/sVBC13I.png')
+            elif player_stats['Lifeform'] == 'Fade':
+                self.set_thumbnail(url='https://i.imgur.com/aSNNlVp.png')
+            elif player_stats['Lifeform'] == 'Onos':
+                self.set_thumbnail(url='https://i.imgur.com/2hkRdQa.png')
+            else:
+                self.set_thumbnail(url='https://s3.amazonaws.com/ns2-wiki/thumb/7/7c/MAC.png/70px-MAC.png')
 
             self.set_footer(
                 text='Hive Skill: {} - Steam ID: {}'.format(player_stats['Hive Skill'], player_stats['Steam ID']),
