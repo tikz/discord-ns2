@@ -160,8 +160,6 @@ class Stats():
                     available_alien_weapons.append((weapons[weapon]['acc_avg']*100, weapons[weapon]['player_dmg']))
 
             marine_acc_wavg = self._weighted_avg(available_marine_weapons)
-            print(available_alien_weapons)
-            print(weapons)
             alien_acc_melee_wavg = self._weighted_avg(available_alien_weapons)
 
             player_stats['Marine Accuracy'] = '{}%'.format(round(marine_acc_wavg, 1))
