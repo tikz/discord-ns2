@@ -85,8 +85,10 @@ class AlertEveryoneEmbed(Embed):
     def __init__(self, needed_players):
         super().__init__()
 
-        self.description = ':warning: Falta **{}** persona{} para arrancar @everyone'.format(needed_players, 's' if len(
-            needed_players) > 1 else '')
+        self.description = ':warning: Falta{} **{}** jugador{} para arrancar @everyone'.format(
+            'n' if needed_players > 1 else '',
+            needed_players,
+            'es' if needed_players > 1 else '')
         self.color = 0xD0021B
 
 
