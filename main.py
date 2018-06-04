@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+import time
 from collections import namedtuple
 
 import aiohttp
@@ -287,13 +288,21 @@ async def init_webserver(loop):
     app.router.add_route('*', '/', bridge_endpoint)
     return app
 
+async def discord_manager():
+    while True:
+        try:
+            await client.start(config.DISCORD_TOKEN)
+        except BaseException:
+            time.sleep(5)
 
 game_server = GameServer(loop, event_handler=on_gameserver_event)
 
+asyncio.ensure_future(discord_manager())
+
 while True:
     try:
-        asyncio.ensure_future(client.start(config.DISCORD_TOKEN))
         app = loop.run_until_complete(init_webserver(loop))
         web.run_app(app, host='0.0.0.0', port=config.WEBSERVER_PORT)
     except Exception as e:
         logger.error(e)
+        time.sleep(5)
