@@ -1,11 +1,12 @@
 import logging
+import re
+import time
 
 import requests
 from bs4 import BeautifulSoup
 from valve.steam.id import SteamID
 
 import templates
-import re
 
 
 def logger_formatter(logger):
@@ -28,7 +29,13 @@ def load_map_thumbnails():
     map_list_url = base_url + '/ns2/Map_Index'
 
     logger.info(templates.LOG_GET.format(map_list_url))
-    map_index = requests.get(map_list_url).text
+    while True:
+        try:
+            map_index = requests.get(map_list_url).text
+            break
+        except:
+            time.sleep(5)
+
 
     soup = BeautifulSoup(map_index, 'html.parser')
     tables = soup.find_all('table', {'class': 'wikitable'})
