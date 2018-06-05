@@ -33,8 +33,8 @@ class Logs():
     def search(self, text):
         found = []
         pattern = re.compile(text, re.IGNORECASE)
-        log_files = sorted(os.listdir(self.log_dir), key=lambda x: x.split('-')[1]+x.split('-')[0])[5:]
-        for log in log_files:
+        log_files = sorted(os.listdir(self.log_dir), key=lambda x: x.split('-')[1]+x.split('-')[0])
+        for log in log_files[-5:]:
             log_path = os.path.join(self.log_dir, log)
             data = open(log_path, 'r', errors='replace')
             for lines in data.readlines():
@@ -46,4 +46,3 @@ class Logs():
 
 if config.ENABLE_FTP_LOGS:
     logs = Logs()
-    logs.search('a')
