@@ -56,7 +56,9 @@ async def on_ready():
         logger.error('The role DISCORD_MIN_ROLE={} was not found on the server'.format(config.DISCORD_MIN_ROLE))
 
     asyncio.ensure_future(alerter_watcher())
-    asyncio.ensure_future(ns2plus_watcher())
+
+    if config.DATABASE == 'SQLITE' and config.SQLITE_ENABLE_UPDATES:
+        asyncio.ensure_future(ns2plus_watcher())
 
 
 @client.event
@@ -187,6 +189,16 @@ async def on_message(message):
                 else:
                     server_msg_queue.append(templates.POST_RESPONSE_RCON.format(message.author, input))
 
+            elif message.content.startswith('!msg') and author_is_admin:
+                params = message.content.split(' ')
+                try:
+                    channel = params[1]
+                    msg = params[2]
+                except:
+                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
+                else:
+                    await client.send_message(client.get_channel(channel), msg)
+
             elif message.content.startswith('!help'):
                 await client.send_message(message.channel, embed=templates.HelpEmbed())
 
@@ -244,7 +256,7 @@ async def alerter_watcher():
 
 
 async def ns2plus_watcher():
-    """ Periodically check if there is an updated ns2plus database available """
+    """ Periodically check if there is an updated sqlite db available """
     global last_match_id
 
     while True:

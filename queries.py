@@ -6,7 +6,7 @@ COMM_MAPS = 'select ri.mapName, count(*) as wins from PlayerRoundStats as prs in
 
 WEAPON_LIST = 'select weapon from PlayerWeaponStats group by weapon'
 PLAYER_ACC = 'select * from PlayerWeaponStats where steamId = {}'
-PLAYER_KDR = 'select *, 1.0*kills/deaths kdr from PlayerRoundStats where steamId = {} and kdr != 0 and kdr is not null'
+PLAYER_KDR = 'select *, 1.0*kills/deaths kdr from PlayerRoundStats where steamId = {} and 1.0*kills/deaths != 0 and 1.0*kills/deaths is not null'
 
 PLAYER_STATS = 'SELECT steamId, playerName, hiveSkill, wins, losses from PlayerStats where steamId = {}'
 PLAYER_LIFEFORM = 'select class, sum(classTime) time from PlayerClassStats where steamId = {} and (class = "Gorge" or class = "Lerk" or class = "Fade" or class = "Onos") group by class order by time desc limit 1'
@@ -17,7 +17,9 @@ PLAYER_MAPS = 'select wins.mapName, 100.0*wins/(wins+losses) as wl, wins+losses 
 AWARD_DEAD = 'select ps.playerName, sum(pc.classTime) as time from PlayerClassStats as pc inner join PlayerStats ps on ps.steamId = pc.steamId where pc.class = "Dead" group by pc.steamId  order by time desc limit 1'
 AWARD_EMBRYO = 'select ps.playerName, sum(pc.classTime) as time from PlayerClassStats as pc inner join PlayerStats ps on ps.steamId = pc.steamId where pc.class = "Embryo" group by pc.steamId  order by time desc limit 1'
 AWARD_GORGE = 'select ps.playerName, sum(pc.classTime) as time from PlayerClassStats as pc inner join PlayerStats ps on ps.steamId = pc.steamId where pc.class = "Gorge" group by pc.steamId  order by time desc limit 1'
+
 AWARD_KILLING_PLACE = 'select victimLocation, count(*) c from KillFeed group by victimLocation order by c desc limit 1'
+
 AWARD_PARASITE = 'select ps.playerName, sum(pws.hits) as hits from PlayerWeaponStats pws inner join PlayerStats ps on ps.steamId = pws.steamId where pws.weapon = "Parasite" group by pws.steamId order by hits desc'
 AWARD_EXO_EGG = 'select ps.playerName, sum(pws.kills) as kills from PlayerWeaponStats pws inner join PlayerStats ps on ps.steamId = pws.steamId where pws.weapon = "Exo" group by pws.steamId order by kills desc limit 1'
 AWARD_COMMANDER_EJECT = 'select playerName, commanderTime as time from PlayerRoundStats prs inner join RoundInfo ri on ri.roundId = prs.roundId where commanderTime > 0 order by commanderTime asc limit 1'
@@ -47,7 +49,8 @@ AWARD_PHASE_GATE = _AWARD_RUSH_BUILDING.format('marine', 1, 'PhaseGate')
 AWARD_2ND_HIVE = _AWARD_RUSH_BUILDING.format('alien', 2, 'Hive')
 
 TOP10_KDR = 'select playerName, 1.0*kills/deaths value from PlayerStats where roundsPlayed > 20 order by value desc limit 10'
-TOP10_RIFLE = 'select playerName, 100.0*avg(acc) value from (select ps.playerName, pws.steamId, 1.0*(pws.hits-pws.onosHits)/(pws.hits+pws.misses-pws.onosHits) acc from PlayerWeaponStats pws inner join PlayerStats ps on ps.steamId = pws.steamId where pws.weapon = "Rifle" and ps.wins+ps.losses > 20 and acc != 0) group by steamId order by value desc limit 10'
-TOP10_SHOTGUN = 'select playerName, 100.0*avg(acc) value from (select ps.playerName, pws.steamId, 1.0*(pws.hits-pws.onosHits)/(pws.hits+pws.misses-pws.onosHits) acc from PlayerWeaponStats pws inner join PlayerStats ps on ps.steamId = pws.steamId where pws.weapon = "Shotgun" and ps.wins+ps.losses > 20 and acc != 0) group by steamId order by value desc limit 10'
+TOP10_WEAPON = 'select playerName, 100.0*avg(acc) value from (select ps.playerName, pws.steamId, 1.0*(pws.hits-pws.onosHits)/(pws.hits+pws.misses-pws.onosHits) acc from PlayerWeaponStats pws inner join PlayerStats ps on ps.steamId = pws.steamId where pws.weapon = "{}" and ps.wins+ps.losses > 20 and 1.0*(pws.hits-pws.onosHits)/(pws.hits+pws.misses-pws.onosHits) != 0) t1 group by steamId order by value desc limit 10'
+TOP10_RIFLE = TOP10_WEAPON.format('Rifle')
+TOP10_SHOTGUN = TOP10_WEAPON.format('Shotgun')
 TOP10_COMM = 'select playerName, 1.0*commanderWins/commanderLosses value from PlayerStats where commanderWins+commanderLosses > 10 order by value desc limit 10'
-TOP10_MELEE = 'select playerName, sum(100.0*acc*dmg)/sum(dmg) value from (select playerName, steamId, weapon, avg(acc) acc, sum(playerDamage) dmg from (select ps.playerName, pws.weapon, pws.steamId, 1.0*(pws.hits)/(pws.hits+pws.misses) acc, pws.playerDamage from PlayerWeaponStats pws inner join PlayerStats ps on ps.steamId = pws.steamId where (pws.weapon = "Bite" or pws.weapon = "LerkBite" or pws.weapon = "Swipe" or pws.weapon = "Gore") and acc != 0 and ps.wins+ps.losses > 20) group by steamId, weapon) group by steamId order by value desc limit 10'
+TOP10_MELEE = 'select playerName, sum(100.0*acc*dmg)/sum(dmg) value from (select playerName, steamId, weapon, avg(acc) acc, sum(playerDamage) dmg from (select ps.playerName, pws.weapon, pws.steamId, 1.0*(pws.hits)/(pws.hits+pws.misses) acc, pws.playerDamage from PlayerWeaponStats pws inner join PlayerStats ps on ps.steamId = pws.steamId where (pws.weapon = "Bite" or pws.weapon = "LerkBite" or pws.weapon = "Swipe" or pws.weapon = "Gore") and 1.0*(pws.hits)/(pws.hits+pws.misses) != 0 and ps.wins+ps.losses > 20) t2 group by steamId, weapon) t1 group by steamId order by value desc limit 10'

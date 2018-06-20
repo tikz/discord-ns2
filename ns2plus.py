@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import sqlite3
 import statistics
 
 import aiohttp
@@ -13,6 +12,7 @@ from scipy.stats import norm
 import io
 
 import config
+from config import Database
 import queries
 import templates
 import utils
@@ -20,21 +20,6 @@ import utils
 logger = logging.getLogger(__name__)
 utils.logger_formatter(logger)
 
-DB = 'ns2plus.sqlite3'
-
-
-class Database():
-    def __init__(self):
-        self.db = DB
-
-    def __enter__(self):
-        self.conn = sqlite3.connect(self.db)
-        self.conn.row_factory = sqlite3.Row
-        return self.conn.cursor()
-
-    def __exit__(self, type, value, traceback):
-        self.conn.commit()
-        self.conn.close()
 
 
 class Stats():
@@ -42,12 +27,12 @@ class Stats():
         loop.run_until_complete(self.update())
 
     async def update(self):
-        if config.NS2STATS_ENABLE_UPDATES:
-            logger.info(templates.LOG_GET.format(config.NS2STATS_DB_URL))
+        if config.DATABASE == 'SQLITE' and config.SQLITE_ENABLE_UPDATES:
+            logger.info(templates.LOG_GET.format(config.SQLITE_DB_URL))
             with aiohttp.ClientSession() as session:
-                async with session.get(config.NS2STATS_DB_URL) as resp:
+                async with session.get(config.SQLITE_DB_URL) as resp:
                     data = await resp.read()
-                    with open(DB, 'wb') as f:
+                    with open(config.DB, 'wb') as f:
                         f.write(data)
 
         with Database() as db:
@@ -189,7 +174,7 @@ class Stats():
 
             with Database() as db:
                 results = [dict(ix) for ix in db.execute(queries.PLAYER_KDR.format(steam_id)).fetchall()]
-            data = np.array([x['kdr'] for x in results])
+            data = np.array([float(x['kdr']) for x in results])
             mu, std = norm.fit(data)
 
             xmin, xmax = 0, max(data)
