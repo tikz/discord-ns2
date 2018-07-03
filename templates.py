@@ -156,11 +156,13 @@ class PlayerEmbed(Embed):
 
             self.add_field(name='Win rate', value=player_stats['Wins'], inline=True)
             self.add_field(name='KDR', value=player_stats['KDR'], inline=True)
+            self.add_field(name='PDDR', value=player_stats['PDDR'], inline=True)
 
             # Spacer
             self.add_field(name=' ‏‏‎ ', value=' ‏‏‎ ', inline=False)
 
-            self.add_field(name='Marine Accuracy', value=player_stats['Marine Accuracy'], inline=False)
+            if 'Marine Accuracy' in player_stats:
+                self.add_field(name='Marine Accuracy', value=player_stats['Marine Accuracy'], inline=False)
 
             for key in player_stats['marine'].keys():
                 self.add_field(name=key, value=player_stats['marine'][key], inline=True)
@@ -168,27 +170,33 @@ class PlayerEmbed(Embed):
             # Spacer
             self.add_field(name=' ‏‏‎ ', value=' ‏‏‎ ', inline=False)
 
-            self.add_field(name='Alien Melee Accuracy', value=player_stats['Alien Melee Accuracy'], inline=False)
+            if 'Alien Melee Accuracy' in player_stats:
+                self.add_field(name='Alien Melee Accuracy', value=player_stats['Alien Melee Accuracy'], inline=False)
 
             for key in player_stats['alien'].keys():
                 self.add_field(name=key, value=player_stats['alien'][key], inline=True)
 
-            if player_stats['Lifeform'] == 'Gorge':
-                self.set_thumbnail(url='https://i.imgur.com/c70RH1h.png')
-            elif player_stats['Lifeform'] == 'Lerk':
-                self.set_thumbnail(url='https://i.imgur.com/sVBC13I.png')
-            elif player_stats['Lifeform'] == 'Fade':
-                self.set_thumbnail(url='https://i.imgur.com/aSNNlVp.png')
-            elif player_stats['Lifeform'] == 'Onos':
-                self.set_thumbnail(url='https://i.imgur.com/2hkRdQa.png')
-            else:
-                self.set_thumbnail(url='https://s3.amazonaws.com/ns2-wiki/thumb/7/7c/MAC.png/70px-MAC.png')
+            if 'Lifeform' in player_stats:
+                if player_stats['Lifeform'] == 'Gorge':
+                    self.set_thumbnail(url='https://i.imgur.com/c70RH1h.png')
+                elif player_stats['Lifeform'] == 'Lerk':
+                    self.set_thumbnail(url='https://i.imgur.com/sVBC13I.png')
+                elif player_stats['Lifeform'] == 'Fade':
+                    self.set_thumbnail(url='https://i.imgur.com/aSNNlVp.png')
+                elif player_stats['Lifeform'] == 'Onos':
+                    self.set_thumbnail(url='https://i.imgur.com/2hkRdQa.png')
+                else:
+                    self.set_thumbnail(url='https://s3.amazonaws.com/ns2-wiki/thumb/7/7c/MAC.png/70px-MAC.png')
 
+            # Spacer
+            self.add_field(name=' ‏‏‎ ', value=' ‏‏‎ ', inline=False)
+            
             self.set_footer(
                 text='Hive Skill: {} - Steam ID: {}'.format(player_stats['Hive Skill'], player_stats['Steam ID']),
                 icon_url='')
             self.timestamp = datetime.datetime.now(tz)
         except Exception as e:
+            print(repr(e))
             self.description = 'No se encuentra el jugador.'
             logger.error(e)
 

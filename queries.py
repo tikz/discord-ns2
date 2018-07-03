@@ -7,6 +7,7 @@ COMM_MAPS = 'select ri.mapName, count(*) as wins from PlayerRoundStats as prs in
 WEAPON_LIST = 'select weapon from PlayerWeaponStats group by weapon'
 PLAYER_ACC = 'select * from PlayerWeaponStats where steamId = {}'
 PLAYER_KDR = 'select *, 1.0*kills/deaths kdr from PlayerRoundStats where steamId = {} and 1.0*kills/deaths != 0 and 1.0*kills/deaths is not null'
+PLAYER_PDDRS = 'select *, 1.0*playerDamage/deaths pddr from PlayerRoundStats where steamId = {} and 1.0*playerDamage/deaths is not null'
 
 PLAYER_STATS = 'SELECT steamId, playerName, hiveSkill, wins, losses from PlayerStats where steamId = {}'
 PLAYER_LIFEFORM = 'select class, sum(classTime) time from PlayerClassStats where steamId = {} and (class = "Gorge" or class = "Lerk" or class = "Fade" or class = "Onos") group by class order by time desc limit 1'
@@ -48,7 +49,8 @@ AWARD_ARC = _AWARD_RUSH_BUILDING.format('marine', 1, 'ARC')
 AWARD_PHASE_GATE = _AWARD_RUSH_BUILDING.format('marine', 1, 'PhaseGate')
 AWARD_2ND_HIVE = _AWARD_RUSH_BUILDING.format('alien', 2, 'Hive')
 
-TOP10_KDR = 'select playerName, 1.0*kills/deaths value from PlayerStats where roundsPlayed > 20 order by value desc limit 10'
+TOP10_KDR = 'select playerName, avg(1.0*kills/deaths) value, count(roundId) n from PlayerRoundStats where 1.0*kills/deaths != 0 and 1.0*kills/deaths is not null group by steamId having n>20 order by value desc limit 10'
+TOP10_PDDR = 'select playerName, avg(1.0*kills/deaths) value, count(roundId) n from PlayerRoundStats where 1.0*kills/deaths != 0 and 1.0*kills/deaths is not null group by steamId having n>20 order by value desc limit 10'
 TOP10_WEAPON = 'select playerName, 100.0*avg(acc) value from (select ps.playerName, pws.steamId, 1.0*(pws.hits-pws.onosHits)/(pws.hits+pws.misses-pws.onosHits) acc from PlayerWeaponStats pws inner join PlayerStats ps on ps.steamId = pws.steamId where pws.weapon = "{}" and ps.wins+ps.losses > 20 and 1.0*(pws.hits-pws.onosHits)/(pws.hits+pws.misses-pws.onosHits) != 0) t1 group by steamId order by value desc limit 10'
 TOP10_RIFLE = TOP10_WEAPON.format('Rifle')
 TOP10_SHOTGUN = TOP10_WEAPON.format('Shotgun')

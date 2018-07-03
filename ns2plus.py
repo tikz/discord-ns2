@@ -120,6 +120,14 @@ class Stats():
             else:
                 player_stats['KDR'] = round(statistics.mean(kdr_per_match), 2)
 
+            try:
+                query = queries.PLAYER_PDDRS.format(steam_id)
+                pddr_per_match = [dict(ix)['pddr'] for ix in db.execute(query).fetchall()]
+            except:
+                pass
+            else:
+                player_stats['PDDR'] = round(statistics.median(pddr_per_match), 2)
+
             weapons = self._player_weapon_stats(steam_id)
 
             marine_weapons = ['Rifle', 'Pistol', 'Shotgun']
@@ -147,18 +155,26 @@ class Stats():
             wavg_marine_weapons = ['Rifle', 'Pistol', 'Shotgun']
             wavg_alien_weapons = ['Bite', 'Swipe', 'Gore', 'LerkBite']
 
-            for weapon in wavg_marine_weapons:
-                if weapon in weapons:
-                    available_marine_weapons.append((weapons[weapon]['acc_avg']*100, weapons[weapon]['player_dmg']))
-            for weapon in wavg_alien_weapons:
-                if weapon in weapons:
-                    available_alien_weapons.append((weapons[weapon]['acc_avg']*100, weapons[weapon]['player_dmg']))
+            try:
+                for weapon in wavg_marine_weapons:
+                    if weapon in weapons:
+                        available_marine_weapons.append((weapons[weapon]['acc_avg']*100, weapons[weapon]['player_dmg']))
 
-            marine_acc_wavg = self._weighted_avg(available_marine_weapons)
-            alien_acc_melee_wavg = self._weighted_avg(available_alien_weapons)
+                marine_acc_wavg = self._weighted_avg(available_marine_weapons)
+                player_stats['Marine Accuracy'] = '{}%'.format(round(marine_acc_wavg, 1))
+            except:
+                pass
 
-            player_stats['Marine Accuracy'] = '{}%'.format(round(marine_acc_wavg, 1))
-            player_stats['Alien Melee Accuracy'] = '{}%'.format(round(alien_acc_melee_wavg, 1))
+            try:
+                for weapon in wavg_alien_weapons:
+                    if weapon in weapons:
+                        available_alien_weapons.append((weapons[weapon]['acc_avg']*100, weapons[weapon]['player_dmg']))
+
+                alien_acc_melee_wavg = self._weighted_avg(available_alien_weapons)
+
+                player_stats['Alien Melee Accuracy'] = '{}%'.format(round(alien_acc_melee_wavg, 1))
+            except:
+                pass
 
         return player_stats
 
@@ -348,7 +364,7 @@ class Stats():
             results = [dict(ix) for ix in db.execute(query).fetchall()]
             top10 = []
             for i, r in enumerate(results, 1):
-                top10.append('{}. **{}** (*{}*)'.format(i, r['playerName'], round(r['value'], 1)))
+                top10.append('{}. **{}** (*{}*)'.format(i, r['playerName'], round(r['value'], 2)))
             return top10
 
 loop = asyncio.get_event_loop()
