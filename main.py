@@ -111,8 +111,8 @@ async def on_message(message):
             elif message.content.startswith('!chart') and config.ENABLE_STATS:
                 params = message.content.split(' ')
                 try:
-                    player = params[1]
-                    type = params[2]
+                    type = params[1]
+                    player = ' '.join(params[2:])
                 except:
                     await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
                 else:
@@ -300,12 +300,14 @@ async def init_webserver(loop):
     app.router.add_route('*', '/', bridge_endpoint)
     return app
 
+
 async def discord_manager():
     while True:
         try:
             await client.start(config.DISCORD_TOKEN)
         except BaseException:
             time.sleep(5)
+
 
 game_server = GameServer(loop, event_handler=on_gameserver_event)
 

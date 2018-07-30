@@ -44,7 +44,7 @@ class HelpEmbed(Embed):
             self.description += '**!player** *nick* \tVer estadísticas alien y marine del jugador\n'
             self.description += '**!comm** *nick* \t Ver estadísticas de commander marine del jugador\n'
             self.description += '**!top10** *kdr/rifle/shotgun/melee/comm* \t Ver el respectivo top 10 de jugadores\n'
-            self.description += '**!chart** *nick* *kdr/rifle/bite/...*\n'
+            self.description += '**!chart** *kdr/rifle/bite/...* *nick*\n'
             self.description += '**!awards**\n'
         self.color = 0xD0021B
 
@@ -154,7 +154,8 @@ class PlayerEmbed(Embed):
             player_stats = ns2plus.stats.get_player_stats(player)
             self.set_author(name=player_stats['Name'], icon_url=config.BOT_ICON_URL)
 
-            self.add_field(name='Win rate', value=player_stats['Wins'], inline=True)
+            self.add_field(name='Marine win rate', value=player_stats['Marine Wins'], inline=True)
+            self.add_field(name='Alien win rate', value=player_stats['Alien Wins'], inline=True)
             self.add_field(name='KDR', value=player_stats['KDR'], inline=True)
             self.add_field(name='PDDR', value=player_stats['PDDR'], inline=True)
 
@@ -190,7 +191,7 @@ class PlayerEmbed(Embed):
 
             # Spacer
             self.add_field(name=' ‏‏‎ ', value=' ‏‏‎ ', inline=False)
-            
+
             self.set_footer(
                 text='Hive Skill: {} - Steam ID: {}'.format(player_stats['Hive Skill'], player_stats['Steam ID']),
                 icon_url='')
