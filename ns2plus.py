@@ -49,7 +49,7 @@ class Stats():
             r = [x1, x2 + x3]
         try:
             r.append('({}%)'.format(round(r[0] / r[1] * 100, 1)))
-        except ZeroDivisionError:
+        except:
             r.append('')
 
         return '{}/{} {}'.format(*r)

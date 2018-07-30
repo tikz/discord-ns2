@@ -142,7 +142,7 @@ class CommEmbed(Embed):
             self.timestamp = datetime.datetime.now(tz)
         except Exception as e:
             self.description = 'No se encuentra el jugador.'
-            logger.error(e)
+            logger.error(repr(e))
 
 
 class PlayerEmbed(Embed):
