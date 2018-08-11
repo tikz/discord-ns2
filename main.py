@@ -108,19 +108,19 @@ async def on_message(message):
                 else:
                     await client.send_message(message.channel, embed=templates.PlayerEmbed(player))
 
-            elif message.content.startswith('!chart') and config.ENABLE_STATS:
-                params = message.content.split(' ')
+            elif message.content.startswith('!charts') and config.ENABLE_STATS:
+                params = message.content.split('!charts ')
                 try:
-                    type = params[1]
-                    player = ' '.join(params[2:])
+                    player = params[1]
                 except:
                     await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
                 else:
-                    try:
-                        await client.send_file(message.channel, templates.Chart(player, type).image(),
-                                               filename='{}_{}.png'.format(player, type))
-                    except:
-                        await client.send_message(message.channel, templates.MSG_COMMAND_ERROR)
+                    for type in ['rifle', 'shotgun', 'lerk', 'fade', 'onos']:
+                        try:
+                            await client.send_file(message.channel, templates.PlayerChart(player, type).image(),
+                                                   filename='{}_{}.png'.format(player, type))
+                        except:
+                            pass
 
 
             elif message.content.startswith('!top10') and config.ENABLE_STATS:

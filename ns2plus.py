@@ -4,11 +4,12 @@ import statistics
 
 import aiohttp
 import matplotlib as mpl
+
 mpl.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FormatStrFormatter
 import numpy as np
 from requests.structures import CaseInsensitiveDict
-from scipy.stats import norm
 import io
 
 import config
@@ -16,10 +17,12 @@ from config import Database
 import queries
 import templates
 import utils
+import os
+
+plt.style.use(os.path.dirname(os.path.abspath(__file__)) + '/discord.mplstyle')
 
 logger = logging.getLogger(__name__)
 utils.logger_formatter(logger)
-
 
 
 class Stats():
@@ -53,6 +56,12 @@ class Stats():
             r.append('')
 
         return '{}/{} {}'.format(*r)
+
+    @staticmethod
+    def _sma(a, n=20):
+        ret = np.cumsum(a, dtype=float)
+        ret[n:] -= ret[:-n]
+        return ret[n - 1:] / n
 
     @staticmethod
     def _weighted_avg(l):
@@ -145,14 +154,14 @@ class Stats():
             for weapon in marine_weapons:
                 try:
                     player_stats['marine'][weapon + ' Accuracy'] = '{}% (σ={}%)'.format(
-                        round(weapons[weapon]['acc_avg']*100, 1),
+                        round(weapons[weapon]['acc_avg'] * 100, 1),
                         round(weapons[weapon]['acc_std'] * 100, 1))
                 except:
                     pass
             for weapon in alien_weapons:
                 try:
                     player_stats['alien'][weapon + ' Accuracy'] = '{}% (σ={}%)'.format(
-                        round(weapons[weapon]['acc_avg']*100, 1),
+                        round(weapons[weapon]['acc_avg'] * 100, 1),
                         round(weapons[weapon]['acc_std'] * 100, 1))
                 except:
                     pass
@@ -167,7 +176,8 @@ class Stats():
             try:
                 for weapon in wavg_marine_weapons:
                     if weapon in weapons:
-                        available_marine_weapons.append((weapons[weapon]['acc_avg']*100, weapons[weapon]['player_dmg']))
+                        available_marine_weapons.append(
+                            (weapons[weapon]['acc_avg'] * 100, weapons[weapon]['player_dmg']))
 
                 marine_acc_wavg = self._weighted_avg(available_marine_weapons)
                 player_stats['Marine Accuracy'] = '{}%'.format(round(marine_acc_wavg, 1))
@@ -177,7 +187,8 @@ class Stats():
             try:
                 for weapon in wavg_alien_weapons:
                     if weapon in weapons:
-                        available_alien_weapons.append((weapons[weapon]['acc_avg']*100, weapons[weapon]['player_dmg']))
+                        available_alien_weapons.append(
+                            (weapons[weapon]['acc_avg'] * 100, weapons[weapon]['player_dmg']))
 
                 alien_acc_melee_wavg = self._weighted_avg(available_alien_weapons)
 
@@ -187,69 +198,50 @@ class Stats():
 
         return player_stats
 
-
     def get_player_chart(self, player, type):
         if player in self.steam_ids:
             steam_id = self.steam_ids[player]
         else:
             raise ValueError
 
-        if type == 'kdr':
-            fig, ax = plt.subplots()
+        dpi = 96
+        fig, ax = plt.subplots(figsize=(400 / dpi, 135 / dpi), dpi=dpi)
 
-            with Database() as db:
-                results = [dict(ix) for ix in db.execute(queries.PLAYER_KDR.format(steam_id)).fetchall()]
-            data = np.array([float(x['kdr']) for x in results])
-            mu, std = norm.fit(data)
-
-            xmin, xmax = 0, max(data)
-            values, bins, _ = ax.hist(data, bins=np.arange(xmin, xmax, 0.2), density=1, alpha=0.6, color='g')
-            index_1 = next(x[0] for x in enumerate(bins) if x[1] > 1.0)
-            area = sum(np.diff([x for x in bins[index_1:] if x > 1]) * values[index_1:])
-
-            ax.set_title("P(KDR≥1) = %.2f" % (area))
-            ax.axvline(1, color='black', linestyle='dashed', linewidth=1)
-            ax.axvline(mu, color='r', linestyle='dashed', linewidth=1)
-            ax.set_xlabel('KDR')
-
-            img = io.BytesIO()
-            fig.savefig(img, format='png')
-            plt.close(fig)
-            img.seek(0)
-
-            return img
-
+        if type == 'rifle':
+            query = queries.PLAYER_CHART_RIFLE.format(steam_id)
+            ax.set_title('Rifle Accuracy')
+        elif type == 'shotgun':
+            query = queries.PLAYER_CHART_SHOTGUN.format(steam_id)
+            ax.set_title('Shotgun Accuracy')
+        elif type == 'lerk':
+            query = queries.PLAYER_CHART_LERK.format(steam_id)
+            ax.set_title('Lerk DPS')
+        elif type == 'fade':
+            query = queries.PLAYER_CHART_FADE.format(steam_id)
+            ax.set_title('Fade DPS')
+        elif type == 'onos':
+            query = queries.PLAYER_CHART_ONOS.format(steam_id)
+            ax.set_title('Onos DPS')
         else:
-            weapon_stats = self._player_weapon_stats(steam_id)
-            if type.title() in weapon_stats:
-                fig, ax = plt.subplots()
-                weapon = type.title()
-                data = np.array([x*100 for x in weapon_stats[weapon]['data']])
+            raise ValueError
 
-                mu, std = norm.fit(data)
-                n = len(data)
+        with Database() as db:
+            results = [dict(ix) for ix in db.execute(query).fetchall()]
+        x = np.array([x['roundId'] for x in results])
+        y = np.array([float(x['val']) for x in results])
+        n = 20
+        sma_x, sma_y = x[n - 1:], self._sma(y, n)
+        ax.plot(x, y, color='grey', alpha=0.3, linewidth=1)
+        ax.plot(sma_x, sma_y)
 
-                xmin, xmax = 0, max(data)
-                ax.hist(data, bins=np.arange(xmin, xmax, 2), density=1, alpha=0.6, color='g')
-                x = np.linspace(xmin, xmax, 100)
-                p = norm.pdf(x, mu, std)
-                ax.plot(x, p, 'k', linewidth=2)
+        ax.set_ylim([min(sma_y), max(sma_y)])
+        ax.yaxis.set_major_formatter(FormatStrFormatter('%i'))
+        img = io.BytesIO()
+        fig.savefig(img, format='png')
+        plt.close(fig)
+        img.seek(0)
 
-                title = "%s: μ = %.2f,  σ = %.2f, N = %i" % (weapon, mu, std, n)
-                ax.set_title(title)
-                ax.axvline(mu + std, color='black', linestyle='dashed', linewidth=1)
-                ax.axvline(mu - std, color='black', linestyle='dashed', linewidth=1)
-                ax.axvline(mu, color='r', linestyle='dashed', linewidth=1)
-                ax.set_xlabel('Accuracy')
-
-                img = io.BytesIO()
-                fig.savefig(img, format='png')
-                plt.close(fig)
-                img.seek(0)
-
-                return img
-            else:
-                raise ValueError
+        return img
 
     def get_comm_stats(self, player):
         if player in self.steam_ids:
@@ -317,7 +309,7 @@ class Stats():
                     if s > 1 or h or m:
                         human_time += '{} seg{}'.format(int(s), s_plural)
                     else:
-                        human_time += '{} milisegs'.format(int(s*1000))
+                        human_time += '{} milisegs'.format(int(s * 1000))
                     r['time'] = human_time
                 if key == 'winmarine':
                     r['winmarine'] = 'ganó' if value == 1 else 'perdió'
@@ -375,6 +367,7 @@ class Stats():
             for i, r in enumerate(results, 1):
                 top10.append('{}. **{}** (*{}*)'.format(i, r['playerName'], round(r['value'], 2)))
             return top10
+
 
 loop = asyncio.get_event_loop()
 stats = Stats(loop)

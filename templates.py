@@ -44,7 +44,7 @@ class HelpEmbed(Embed):
             self.description += '**!player** *nick* \tVer estadísticas alien y marine del jugador\n'
             self.description += '**!comm** *nick* \t Ver estadísticas de commander marine del jugador\n'
             self.description += '**!top10** *kdr/rifle/shotgun/melee/comm* \t Ver el respectivo top 10 de jugadores\n'
-            self.description += '**!chart** *kdr/rifle/bite/...* *nick*\n'
+            self.description += '**!charts** *nick*\n'
             self.description += '**!awards**\n'
         self.color = 0xD0021B
 
@@ -202,7 +202,7 @@ class PlayerEmbed(Embed):
             logger.error(e)
 
 
-class Chart(Embed):
+class PlayerChart(Embed):
     def __init__(self, player, type):
         super().__init__()
         self.player = player
