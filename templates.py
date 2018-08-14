@@ -16,6 +16,8 @@ MSG_CHAT = ':speech_balloon: [{}] **{}**: {}'
 POST_RESPONSE_CHAT = 'chat{}{}'
 POST_RESPONSE_RCON = 'rcon{}{}'
 
+CHART_TYPES = ['rifle', 'shotgun', 'lerk', 'fade', 'onos']
+
 import datetime
 import logging
 

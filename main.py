@@ -115,13 +115,12 @@ async def on_message(message):
                 except:
                     await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
                 else:
-                    for type in ['rifle', 'shotgun', 'lerk', 'fade', 'onos']:
+                    for type in templates.CHART_TYPES:
                         try:
                             await client.send_file(message.channel, templates.PlayerChart(player, type).image(),
                                                    filename='{}_{}.png'.format(player, type))
                         except:
                             pass
-
 
             elif message.content.startswith('!top10') and config.ENABLE_STATS:
                 params = message.content.split('!top10 ')
@@ -158,6 +157,7 @@ async def on_message(message):
                     await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
                 else:
                     await client.send_message(message.channel, embed=templates.DelPlayerEmbed(input))
+
             elif message.content.startswith('!logs') and author_is_admin and config.ENABLE_FTP_LOGS:
                 params = message.content.split('!logs ')
                 try:
