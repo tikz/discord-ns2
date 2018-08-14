@@ -76,7 +76,7 @@ async def on_message(message):
         return
 
     if message.channel.is_private:
-        logger.info('{}: {}'.format(message.channel, message.content))
+        logger.info(f'{message.channel}: {message.content}')
 
     if message.channel.id in config.DISCORD_LISTEN_CHANNELS or message.channel.is_private:
         if message.content.startswith('!'):
@@ -122,7 +122,7 @@ async def on_message(message):
                     for type in templates.CHART_TYPES:
                         try:
                             await client.send_file(message.channel, templates.PlayerChart(player, type).image(),
-                                                   filename='{}_{}.png'.format(player, type))
+                                                   filename=f'{player}_{type}.png')
                         except:
                             pass
 
@@ -272,7 +272,7 @@ async def ns2plus_watcher():
                     response = json.loads(await r.read())
                     match_id = int(response[0]['count'])
                     if last_match_id != match_id and last_match_id is not None:
-                        logger.info('New round with ID {}. Fetching ns2plus DB...'.format(match_id))
+                        logger.info(f'New round with ID {match_id}. Fetching ns2plus DB...')
                         await ns2plus.stats.update()
                     last_match_id = match_id
         except Exception as e:
@@ -302,9 +302,6 @@ async def bridge_endpoint(request):
                 await client.send_message(channel, templates.MSG_EVENT_MARINEWIN)
             if data['sub'] == 'alienwin':
                 await client.send_message(channel, templates.MSG_EVENT_ALIENWIN)
-
-
-
 
     logger.info(f'DiscordBridge POST: {data}')
 

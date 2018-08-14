@@ -51,7 +51,7 @@ class Stats():
         else:
             r = [x1, x2 + x3]
         try:
-            r.append('({}%)'.format(round(r[0] / r[1] * 100, 1)))
+            r.append(f'({round(r[0] / r[1] * 100, 1))}%)')
         except:
             r.append('')
 
@@ -151,18 +151,12 @@ class Stats():
             marine_weapons = ['Rifle', 'Pistol', 'Shotgun']
             alien_weapons = ['Bite', 'Swipe', 'Gore', 'Spikes', 'LerkBite']
 
-            for weapon in marine_weapons:
+            for weapon in marine_weapons + alien_weapons:
                 try:
-                    player_stats['marine'][weapon + ' Accuracy'] = '{}% (σ={}%)'.format(
-                        round(weapons[weapon]['acc_avg'] * 100, 1),
-                        round(weapons[weapon]['acc_std'] * 100, 1))
-                except:
-                    pass
-            for weapon in alien_weapons:
-                try:
-                    player_stats['alien'][weapon + ' Accuracy'] = '{}% (σ={}%)'.format(
-                        round(weapons[weapon]['acc_avg'] * 100, 1),
-                        round(weapons[weapon]['acc_std'] * 100, 1))
+                    avg = round(weapons[weapon]['acc_avg'] * 100, 1)
+                    std = round(weapons[weapon]['acc_avg'] * 100, 1)
+                    team = 'marine' if weapon in marine_weapons else 'alien'
+                    player_stats[team][weapon + ' Accuracy'] = f'{avg}% (σ={std}%)'
                 except:
                     pass
 
@@ -180,7 +174,7 @@ class Stats():
                             (weapons[weapon]['acc_avg'] * 100, weapons[weapon]['player_dmg']))
 
                 marine_acc_wavg = self._weighted_avg(available_marine_weapons)
-                player_stats['Marine Accuracy'] = '{}%'.format(round(marine_acc_wavg, 1))
+                player_stats['Marine Accuracy'] = f'{round(marine_acc_wavg, 1)}%'
             except:
                 pass
 
@@ -192,7 +186,7 @@ class Stats():
 
                 alien_acc_melee_wavg = self._weighted_avg(available_alien_weapons)
 
-                player_stats['Alien Melee Accuracy'] = '{}%'.format(round(alien_acc_melee_wavg, 1))
+                player_stats['Alien Melee Accuracy'] = f'{round(alien_acc_melee_wavg, 1)}%'
             except:
                 pass
 
@@ -303,13 +297,13 @@ class Stats():
                     s_plural = 's' if int(s) > 1 else ''
                     human_time = ''
                     if h > 0:
-                        human_time += '{} hora{}, '.format(int(h), h_plural)
+                        human_time += f'{int(h)} hora{h_plural}, '
                     if m > 0:
-                        human_time += '{} min{}, '.format(int(m), m_plural)
+                        human_time += f'{int(m)} min{m_plural}, '
                     if s > 1 or h or m:
-                        human_time += '{} seg{}'.format(int(s), s_plural)
+                        human_time += f'{int(s)} seg{s_plural}'
                     else:
-                        human_time += '{} milisegs'.format(int(s * 1000))
+                        human_time += f'{int(s * 1000)} milisegs'
                     r['time'] = human_time
                 if key == 'winmarine':
                     r['winmarine'] = 'ganó' if value == 1 else 'perdió'
@@ -365,7 +359,7 @@ class Stats():
             results = [dict(ix) for ix in db.execute(query).fetchall()]
             top10 = []
             for i, r in enumerate(results, 1):
-                top10.append('{}. **{}** (*{}*)'.format(i, r['playerName'], round(r['value'], 2)))
+                top10.append(f'{i}. **{r["playerName"]}** (*{round(r["value"], 2)}*)')
             return top10
 
 
