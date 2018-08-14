@@ -179,6 +179,7 @@ async def on_message(message):
                     await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
                 else:
                     server_msg_queue.append(templates.POST_RESPONSE_CHAT.format(message.author, input))
+                    await client.send_message(message.channel, templates.MSG_ACK)
 
             elif message.content.startswith('!rcon') and author_is_admin:
                 params = message.content.split('!rcon ')
@@ -188,6 +189,7 @@ async def on_message(message):
                     await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
                 else:
                     server_msg_queue.append(templates.POST_RESPONSE_RCON.format(message.author, input))
+                    await client.send_message(message.channel, templates.MSG_ACK)
 
             elif message.content.startswith('!msg') and author_is_admin:
                 params = message.content.split(' ')
