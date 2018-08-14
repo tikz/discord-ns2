@@ -51,7 +51,7 @@ class Stats():
         else:
             r = [x1, x2 + x3]
         try:
-            r.append(f'({round(r[0] / r[1] * 100, 1))}%)')
+            r.append(f'({round(r[0] / r[1] * 100, 1)}%)')
         except:
             r.append('')
 
