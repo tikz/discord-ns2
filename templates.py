@@ -12,6 +12,9 @@ MSG_EVENT_QUIT = ':red_circle: **{}** *salió del servidor* ({player_count}/{max
 MSG_EVENT_AFK = ':zzz: **{}** *está AFK*'
 MSG_EVENT_NAFK = ':zzz: **{}** *ya no está AFK*'
 MSG_EVENT_CHANGEMAP = ':large_orange_diamond: *Se cambió el mapa a* **{}**'
+MSG_EVENT_ROUNDSTART = ':small_red_triangle: *Inicio de la ronda*'
+MSG_EVENT_ALIENWIN = ':kharaa: *Aliens win*'
+MSG_EVENT_MARINEWIN = ':tsf: *Marines win*'
 MSG_CHAT = ':speech_balloon: [{}] **{}**: {}'
 POST_RESPONSE_CHAT = 'chat{}{}'
 POST_RESPONSE_RCON = 'rcon{}{}'

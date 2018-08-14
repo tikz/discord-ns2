@@ -295,6 +295,16 @@ async def bridge_endpoint(request):
         if data['type'] == 'adminprint' and 'banned' in data['msg']:
             await client.send_message(channel_bans, f'`{data["msg"]}`')
 
+        if data['type'] == 'status':
+            if data['sub'] == 'roundstart':
+                await client.send_message(channel, templates.MSG_EVENT_ROUNDSTART)
+            if data['sub'] == 'marinewin':
+                await client.send_message(channel, templates.MSG_EVENT_MARINEWIN)
+            if data['sub'] == 'alienwin':
+                await client.send_message(channel, templates.MSG_EVENT_ALIENWIN)
+
+
+
 
     logger.info(f'DiscordBridge POST: {data}')
 
