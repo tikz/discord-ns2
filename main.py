@@ -289,6 +289,8 @@ async def bridge_endpoint(request):
             await client.send_message(channel,
                                       templates.MSG_CHAT.format(teams[data['team']], data['plyr'], data['msg']))
 
+    logger.info(f'DiscordBridge POST: {data}')
+
     if server_msg_queue:
         msg = server_msg_queue[0]
         server_msg_queue.pop(0)
