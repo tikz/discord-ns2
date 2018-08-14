@@ -24,6 +24,7 @@ loop = asyncio.get_event_loop()
 client = discord.Client(loop=loop)
 
 channel = None
+channel_bans = None
 min_role = None
 
 last_match_id = None
@@ -34,12 +35,15 @@ async def on_ready():
     """ Run after the bot is connected to Discord """
 
     global channel
+    global channel_bans
     global min_role
 
     logger.info(templates.LOG_BOT_CONNECTED.format(client.user.name, client.user.id))
 
-    # Set the given default channel in a global
+    # Set the given default channels
     channel = client.get_channel(config.DISCORD_DEFAULT_CHANNEL)
+    channel_bans = client.get_channel(config.DISCORD_BANS_CHANNEL)
+
     if config.ENABLE_STARTUP_MSG == True:
         await client.send_message(channel, templates.MSG_ON_CONNECT)
 
@@ -288,6 +292,9 @@ async def bridge_endpoint(request):
             teams = {'0': 'RR', '1': 'M', '2': 'A', '3': 'S'}
             await client.send_message(channel,
                                       templates.MSG_CHAT.format(teams[data['team']], data['plyr'], data['msg']))
+        if data['type'] == 'adminprint' and 'banned' in data['msg']:
+            await client.send_message(channel_bans, f'`{data["msg"]}`')
+
 
     logger.info(f'DiscordBridge POST: {data}')
 
