@@ -60,9 +60,7 @@ async def on_ready():
         logger.error('The role DISCORD_MIN_ROLE={} was not found on the server'.format(config.DISCORD_MIN_ROLE))
 
     asyncio.ensure_future(alerter_watcher())
-
-    if config.DATABASE == 'SQLITE' and config.SQLITE_ENABLE_UPDATES:
-        asyncio.ensure_future(ns2plus_watcher())
+    asyncio.ensure_future(ns2plus_watcher())
 
 
 @client.event

@@ -8,6 +8,8 @@ serverlogs/
 serverlogs/*
 local/*
 *.whl
+*.sublime-project
+*.sublime-workspace
 
 
 # Byte-compiled / optimized / DLL files
