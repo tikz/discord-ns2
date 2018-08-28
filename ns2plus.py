@@ -154,7 +154,7 @@ class Stats():
             for weapon in marine_weapons + alien_weapons:
                 try:
                     avg = round(weapons[weapon]['acc_avg'] * 100, 1)
-                    std = round(weapons[weapon]['acc_avg'] * 100, 1)
+                    std = round(weapons[weapon]['acc_std'] * 100, 1)
                     team = 'marine' if weapon in marine_weapons else 'alien'
                     player_stats[team][weapon + ' Accuracy'] = f'{avg}% (σ={std}%)'
                 except:
@@ -229,7 +229,6 @@ class Stats():
         ax.plot(sma_x, sma_y)
 
         ax.set_ylim([min(sma_y), max(sma_y)])
-        ax.yaxis.set_major_formatter(FormatStrFormatter('%i'))
         img = io.BytesIO()
         fig.savefig(img, format='png')
         plt.close(fig)
