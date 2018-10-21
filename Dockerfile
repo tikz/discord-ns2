@@ -1,7 +1,6 @@
 FROM python:3.6-alpine
 
-COPY . /app
-COPY config_prod.py config.py
+COPY requirements.txt /app/requirements.txt
 WORKDIR /app
 
 RUN apk add --update alpine-sdk freetype-dev libpng-dev libffi-dev openssl-dev openblas-dev
@@ -11,4 +10,9 @@ RUN apk add --update alpine-sdk freetype-dev libpng-dev libffi-dev openssl-dev o
 # numpy: openblas-dev
 
 RUN pip install -r requirements.txt
+
+COPY . /app
+COPY config_prod.py /app/config.py
+WORKDIR /app
+
 CMD ["python", "main.py"]
