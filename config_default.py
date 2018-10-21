@@ -77,11 +77,11 @@ if DATABASE == 'SQLITE':
             self.conn.close()
 
 if DATABASE == 'MYSQL':
-    import MySQLdb
+    import pymysql.cursors
 
     class Database():
         def __enter__(self):
-            self.conn = MySQLdb.connect(host=MYSQL_HOST, user=MYSQL_USER, passwd=MYSQL_PASS,
+            self.conn = pymysql.connect(host=MYSQL_HOST, user=MYSQL_USER, passwd=MYSQL_PASS,
                                         db=MYSQL_DB)
             self.cursor = self.conn.cursor()
             return self
