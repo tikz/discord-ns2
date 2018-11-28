@@ -220,9 +220,10 @@ async def on_gameserver_event(event):
 async def alerter_watcher():
     """ Periodically check if the alerter condition is met. """
     global channel
-    while True:
-        status = game_server.status
-        if config.ALERT_EVERYONE_ENABLED:
+
+    if config.ALERT_EVERYONE_ENABLED:
+        while True:
+            status = game_server.status
             if config.ALERT_EVERYONE_THRESHOLD_MIN < status.info['player_count'] < config.ALERT_EVERYONE_THRESHOLD_MAX:
                 needed_players = config.ALERT_PLAYERCOUNT_START - \
                     status.info['player_count']
@@ -248,7 +249,7 @@ async def ns2plus_watcher():
                                 f'New round with ID {match_id}. Fetching ns2plus DB...')
                             await ns2plus.stats.update()
                         last_match_id = match_id
-            except Exception as e:
+            except:
                 pass
             else:
                 await asyncio.sleep(60)
@@ -297,7 +298,9 @@ async def discord_manager():
         try:
             await client.start(config.DISCORD_TOKEN)
         except:
-            time.sleep(10)
+            pass
+
+        time.sleep(10)
 
 
 game_server = GameServer(loop, event_handler=on_gameserver_event)
@@ -310,4 +313,4 @@ while True:
         web.run_app(app, host='0.0.0.0', port=config.WEBSERVER_PORT)
     except Exception as e:
         logger.error(e)
-        time.sleep(5)
+    time.sleep(5)
