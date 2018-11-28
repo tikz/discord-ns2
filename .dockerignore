@@ -1,3 +1,5 @@
+config_prod.py
+config.py
 test*
 *.sqlite
 *.sqlite3
@@ -7,6 +9,7 @@ local/*
 *.whl
 *.sublime-project
 *.sublime-workspace
+.vscode/
 
 
 # Byte-compiled / optimized / DLL files

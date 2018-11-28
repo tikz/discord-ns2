@@ -12,7 +12,7 @@ RUN apk add --update alpine-sdk freetype-dev libpng-dev libffi-dev openssl-dev o
 RUN pip install -r requirements.txt
 
 COPY . /app
-COPY config_prod.py /app/config.py
 WORKDIR /app
 
+EXPOSE 8001
 CMD ["python", "main.py"]

@@ -3,12 +3,7 @@ import logging
 import statistics
 
 import aiohttp
-import matplotlib as mpl
 
-mpl.use('Agg')
-import matplotlib.pyplot as plt
-from matplotlib.ticker import FormatStrFormatter
-import numpy as np
 from requests.structures import CaseInsensitiveDict
 import io
 
@@ -18,8 +13,6 @@ import queries
 import templates
 import utils
 import os
-
-plt.style.use(os.path.dirname(os.path.abspath(__file__)) + '/discord.mplstyle')
 
 logger = logging.getLogger(__name__)
 utils.logger_formatter(logger)
@@ -56,12 +49,6 @@ class Stats():
             r.append('')
 
         return '{}/{} {}'.format(*r)
-
-    @staticmethod
-    def _sma(a, n=20):
-        ret = np.cumsum(a, dtype=float)
-        ret[n:] -= ret[:-n]
-        return ret[n - 1:] / n
 
     @staticmethod
     def _weighted_avg(l):
@@ -191,50 +178,6 @@ class Stats():
                 pass
 
         return player_stats
-
-    def get_player_chart(self, player, type):
-        if player in self.steam_ids:
-            steam_id = self.steam_ids[player]
-        else:
-            raise ValueError
-
-        dpi = 96
-        fig, ax = plt.subplots(figsize=(400 / dpi, 135 / dpi), dpi=dpi)
-
-        if type == 'rifle':
-            query = queries.PLAYER_CHART_RIFLE.format(steam_id)
-            ax.set_title('Rifle Accuracy')
-        elif type == 'shotgun':
-            query = queries.PLAYER_CHART_SHOTGUN.format(steam_id)
-            ax.set_title('Shotgun Accuracy')
-        elif type == 'lerk':
-            query = queries.PLAYER_CHART_LERK.format(steam_id)
-            ax.set_title('Lerk DPS')
-        elif type == 'fade':
-            query = queries.PLAYER_CHART_FADE.format(steam_id)
-            ax.set_title('Fade DPS')
-        elif type == 'onos':
-            query = queries.PLAYER_CHART_ONOS.format(steam_id)
-            ax.set_title('Onos DPS')
-        else:
-            raise ValueError
-
-        with Database() as db:
-            results = [dict(ix) for ix in db.execute(query).fetchall()]
-        x = np.array([x['roundId'] for x in results])
-        y = np.array([float(x['val']) for x in results])
-        n = 20
-        sma_x, sma_y = x[n - 1:], self._sma(y, n)
-        ax.plot(x, y, color='grey', alpha=0.3, linewidth=1)
-        ax.plot(sma_x, sma_y)
-
-        ax.set_ylim([min(sma_y), max(sma_y)])
-        img = io.BytesIO()
-        fig.savefig(img, format='png')
-        plt.close(fig)
-        img.seek(0)
-
-        return img
 
     def get_comm_stats(self, player):
         if player in self.steam_ids:

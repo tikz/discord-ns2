@@ -19,8 +19,6 @@ MSG_CHAT = ':speech_balloon: [{}] **{}**: {}'
 POST_RESPONSE_CHAT = 'chat{}{}'
 POST_RESPONSE_RCON = 'rcon{}{}'
 
-CHART_TYPES = ['rifle', 'shotgun', 'lerk', 'fade', 'onos']
-
 import datetime
 import logging
 
@@ -50,7 +48,6 @@ class HelpEmbed(Embed):
             self.description += '**!player** *nick* \tVer estadísticas alien y marine del jugador\n'
             self.description += '**!comm** *nick* \t Ver estadísticas de commander marine del jugador\n'
             self.description += '**!top10** *kdr/rifle/shotgun/melee/comm* \t Ver el respectivo top 10 de jugadores\n'
-            self.description += '**!charts** *nick*\n'
             self.description += '**!awards**\n'
         self.color = 0xD0021B
 
@@ -206,16 +203,6 @@ class PlayerEmbed(Embed):
             print(repr(e))
             self.description = 'No se encuentra el jugador.'
             logger.error(e)
-
-
-class PlayerChart(Embed):
-    def __init__(self, player, type):
-        super().__init__()
-        self.player = player
-        self.type = type
-
-    def image(self):
-        return ns2plus.stats.get_player_chart(self.player, self.type)
 
 
 class ResponseEmbed(Embed):

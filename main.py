@@ -110,20 +110,6 @@ async def on_message(message):
                 else:
                     await client.send_message(message.channel, embed=templates.PlayerEmbed(player))
 
-            elif message.content.startswith('!charts') and config.ENABLE_STATS:
-                params = message.content.split('!charts ')
-                try:
-                    player = params[1]
-                except:
-                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
-                else:
-                    for type in templates.CHART_TYPES:
-                        try:
-                            await client.send_file(message.channel, templates.PlayerChart(player, type).image(),
-                                                   filename=f'{player}_{type}.png')
-                        except:
-                            pass
-
             elif message.content.startswith('!top10') and config.ENABLE_STATS:
                 params = message.content.split('!top10 ')
                 try:
@@ -141,24 +127,6 @@ async def on_message(message):
                     await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
                 else:
                     await client.send_message(message.channel, embed=templates.NS2IDEmbed(input))
-
-            elif message.content.startswith('!addplayer') and author_is_admin:
-                params = message.content.split('!addplayer ')
-                try:
-                    input = params[1]
-                except:
-                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
-                else:
-                    await client.send_message(message.channel,
-                                              embed=templates.AddPlayerEmbed(input, message.author))
-            elif message.content.startswith('!delplayer') and author_is_admin:
-                params = message.content.split('!delplayer ')
-                try:
-                    input = params[1]
-                except:
-                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
-                else:
-                    await client.send_message(message.channel, embed=templates.DelPlayerEmbed(input))
 
             elif message.content.startswith('!logs') and author_is_admin and config.ENABLE_FTP_LOGS:
                 params = message.content.split('!logs ')
