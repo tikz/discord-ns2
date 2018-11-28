@@ -38,7 +38,8 @@ async def on_ready():
     global channel_bans
     global min_role
 
-    logger.info(templates.LOG_BOT_CONNECTED.format(client.user.name, client.user.id))
+    logger.info(templates.LOG_BOT_CONNECTED.format(
+        client.user.name, client.user.id))
 
     # Set the given default channels
     channel = client.get_channel(config.DISCORD_DEFAULT_CHANNEL)
@@ -57,7 +58,8 @@ async def on_ready():
         if role.name == config.DISCORD_MIN_ROLE:
             min_role = role
     if min_role == None:
-        logger.error('The role DISCORD_MIN_ROLE={} was not found on the server'.format(config.DISCORD_MIN_ROLE))
+        logger.error('The role DISCORD_MIN_ROLE={} was not found on the server'.format(
+            config.DISCORD_MIN_ROLE))
 
     asyncio.ensure_future(alerter_watcher())
     asyncio.ensure_future(ns2plus_watcher())
@@ -148,7 +150,8 @@ async def on_message(message):
                 except:
                     await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
                 else:
-                    server_msg_queue.append(templates.POST_RESPONSE_CHAT.format(message.author, input))
+                    server_msg_queue.append(
+                        templates.POST_RESPONSE_CHAT.format(message.author, input))
                     await client.send_message(message.channel, templates.MSG_ACK)
 
             elif message.content.startswith('!rcon') and author_is_admin:
@@ -158,7 +161,8 @@ async def on_message(message):
                 except:
                     await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
                 else:
-                    server_msg_queue.append(templates.POST_RESPONSE_RCON.format(message.author, input))
+                    server_msg_queue.append(
+                        templates.POST_RESPONSE_RCON.format(message.author, input))
                     await client.send_message(message.channel, templates.MSG_ACK)
 
             elif message.content.startswith('!msg') and author_is_admin:
@@ -220,7 +224,8 @@ async def alerter_watcher():
         status = game_server.status
         if config.ALERT_EVERYONE_ENABLED:
             if config.ALERT_EVERYONE_THRESHOLD_MIN < status.info['player_count'] < config.ALERT_EVERYONE_THRESHOLD_MAX:
-                needed_players = config.ALERT_PLAYERCOUNT_START - status.info['player_count']
+                needed_players = config.ALERT_PLAYERCOUNT_START - \
+                    status.info['player_count']
                 await client.send_message(channel, embed=templates.AlertEveryoneEmbed(needed_players))
                 await asyncio.sleep(config.ALERT_EVERYONE_TIME_CAP)
             else:
@@ -231,20 +236,22 @@ async def ns2plus_watcher():
     """ Periodically check if there is an updated sqlite db available """
     global last_match_id
 
-    while True:
-        try:
-            with aiohttp.ClientSession() as session:
-                async with session.get(config.WONITOR_URL + 'query.php?table=RoundInfo&data=count') as r:
-                    response = json.loads(await r.read())
-                    match_id = int(response[0]['count'])
-                    if last_match_id != match_id and last_match_id is not None:
-                        logger.info(f'New round with ID {match_id}. Fetching ns2plus DB...')
-                        await ns2plus.stats.update()
-                    last_match_id = match_id
-        except Exception as e:
-            pass
-        else:
-            await asyncio.sleep(5)
+    if config.DATABASE == 'SQLITE':
+        while True:
+            try:
+                with aiohttp.ClientSession() as session:
+                    async with session.get(config.WONITOR_URL + 'query.php?table=RoundInfo&data=count') as r:
+                        response = json.loads(await r.read())
+                        match_id = int(response[0]['count'])
+                        if last_match_id != match_id and last_match_id is not None:
+                            logger.info(
+                                f'New round with ID {match_id}. Fetching ns2plus DB...')
+                            await ns2plus.stats.update()
+                        last_match_id = match_id
+            except Exception as e:
+                pass
+            else:
+                await asyncio.sleep(60)
 
 
 server_msg_queue = []
@@ -289,8 +296,8 @@ async def discord_manager():
     while True:
         try:
             await client.start(config.DISCORD_TOKEN)
-        except BaseException:
-            time.sleep(5)
+        except:
+            time.sleep(10)
 
 
 game_server = GameServer(loop, event_handler=on_gameserver_event)
