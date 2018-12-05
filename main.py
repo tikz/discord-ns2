@@ -111,6 +111,9 @@ async def on_message(message):
                     await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
                 else:
                     await client.send_message(message.channel, embed=templates.PlayerEmbed(player))
+                    ns2id = templates.NameToNS2ID(player)
+                    if ns2id:
+                        await client.send_message(message.channel, f'https://ns2sud.com/stats/player/{ns2id}')
 
             elif message.content.startswith('!top10') and config.ENABLE_STATS:
                 params = message.content.split('!top10 ')

@@ -12,7 +12,8 @@ import templates
 def logger_formatter(logger):
     """ Apply custom settings to the logger """
     handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+    formatter = logging.Formatter(
+        '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
@@ -35,7 +36,6 @@ def load_map_thumbnails():
             break
         except:
             time.sleep(5)
-
 
     soup = BeautifulSoup(map_index, 'html.parser')
     tables = soup.find_all('table', {'class': 'wikitable'})
@@ -65,7 +65,8 @@ def steam64_ns2id(i):
             if 'id' in i:
                 r = requests.get(i).text
                 i = re.search('steamid...([0-9]*)', r).group(1)
-            profile = SteamID.from_text('STEAM_0:1:{}'.format(int((int(i) - 76561197960265728) / 2)))
+            profile = SteamID.from_text('STEAM_0:1:{}'.format(
+                int((int(i) - 76561197960265728) / 2)))
     except Exception as e:
         logger.error(e)
     else:

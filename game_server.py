@@ -29,7 +29,8 @@ class GameServer:
     """
 
     def __init__(self, loop, event_handler):
-        self._server_address = (str(config.SERVER_ADDRESS), int(config.SERVER_PORT))
+        self._server_address = (
+            str(config.SERVER_ADDRESS), int(config.SERVER_PORT))
 
         self._previous_map = None
         self._previous_playerlist = []
@@ -59,7 +60,8 @@ class GameServer:
                 self._info = server.info()
                 self._map = self._info.values['map']
                 self._players = server.players()['players']
-                self._playerlist = [player.values['name'] for player in self._players]
+                self._playerlist = [player.values['name']
+                                    for player in self._players]
         except Exception as ex:
             logger.debug(ex)
         else:
@@ -75,7 +77,8 @@ class GameServer:
         for player in self._previous_playerlist:
             if player not in self._playerlist and player != 'Unknown':
                 if 'AFK - ' + player in self._playerlist:
-                    event_queue.append(Event('afk', player.replace('AFK - ', '')))
+                    event_queue.append(
+                        Event('afk', player.replace('AFK - ', '')))
                 else:
                     if 'AFK' not in player and player != '':
                         event_queue.append(Event('quit', player))
