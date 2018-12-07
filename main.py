@@ -300,7 +300,8 @@ async def discord_manager():
     while True:
         try:
             await client.start(config.DISCORD_TOKEN)
-        except:
+        except Exception as e:
+            logger.error(f"Error starting Discord client: {e}")
             pass
 
         time.sleep(10)
