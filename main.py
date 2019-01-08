@@ -133,16 +133,6 @@ async def on_message(message):
                 else:
                     await client.send_message(message.channel, embed=templates.NS2IDEmbed(input))
 
-            elif message.content.startswith('!logs') and author_is_admin and config.ENABLE_FTP_LOGS:
-                params = message.content.split('!logs ')
-                try:
-                    pattern = params[1]
-                except:
-                    await client.send_message(message.channel, templates.MSG_COMMAND_REQUIRES_PARAMS)
-                else:
-                    tmp = await client.send_message(message.channel, '...')
-                    await client.edit_message(tmp, templates.logs_response(pattern))
-
             elif message.content.startswith('!awards') and config.ENABLE_STATS:
                 await client.send_message(message.channel, embed=templates.AwardsEmbed())
 

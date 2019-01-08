@@ -59,8 +59,10 @@ class Stats():
     def _player_weapon_stats(self, steam_id):
         weapons = {}
         with Database() as db:
-            weapon_list = [dict(ix)['weapon'] for ix in db.execute(queries.WEAPON_LIST).fetchall()]
-            round_weapon = [dict(ix) for ix in db.execute(queries.PLAYER_ACC.format(steam_id)).fetchall()]
+            weapon_list = [dict(ix)['weapon']
+                           for ix in db.execute(queries.WEAPON_LIST).fetchall()]
+            round_weapon = [dict(ix) for ix in db.execute(
+                queries.PLAYER_ACC.format(steam_id)).fetchall()]
 
             for weapon in weapon_list:
                 accuracies = [(x['hits'] - x['onosHits']) / (x['hits'] + x['misses'] - x['onosHits'])
@@ -105,8 +107,10 @@ class Stats():
             except:
                 pass
             else:
-                player_stats['Marine Wins'] = self._percent_formatter(stats['marineWins'], stats['marineLosses'])
-                player_stats['Alien Wins'] = self._percent_formatter(stats['alienWins'], stats['alienLosses'])
+                player_stats['Marine Wins'] = self._percent_formatter(
+                    stats['marineWins'], stats['marineLosses'])
+                player_stats['Alien Wins'] = self._percent_formatter(
+                    stats['alienWins'], stats['alienLosses'])
 
             try:
                 query = queries.PLAYER_LIFEFORM.format(steam_id)
@@ -119,7 +123,8 @@ class Stats():
 
             try:
                 query = queries.PLAYER_KDR.format(steam_id)
-                kdr_per_match = [dict(ix)['kdr'] for ix in db.execute(query).fetchall()]
+                kdr_per_match = [dict(ix)['kdr']
+                                 for ix in db.execute(query).fetchall()]
             except:
                 pass
             else:
@@ -127,11 +132,13 @@ class Stats():
 
             try:
                 query = queries.PLAYER_PDDRS.format(steam_id)
-                pddr_per_match = [dict(ix)['pddr'] for ix in db.execute(query).fetchall()]
+                pddr_per_match = [dict(ix)['pddr']
+                                  for ix in db.execute(query).fetchall()]
             except:
                 pass
             else:
-                player_stats['PDDR'] = round(statistics.median(pddr_per_match), 2)
+                player_stats['PDDR'] = round(
+                    statistics.median(pddr_per_match), 2)
 
             weapons = self._player_weapon_stats(steam_id)
 
@@ -143,7 +150,8 @@ class Stats():
                     avg = round(weapons[weapon]['acc_avg'] * 100, 1)
                     std = round(weapons[weapon]['acc_std'] * 100, 1)
                     team = 'marine' if weapon in marine_weapons else 'alien'
-                    player_stats[team][weapon + ' Accuracy'] = f'{avg}% (σ={std}%)'
+                    player_stats[team][weapon +
+                                       ' Accuracy'] = f'{avg}% (σ={std}%)'
                 except:
                     pass
 
@@ -171,7 +179,8 @@ class Stats():
                         available_alien_weapons.append(
                             (weapons[weapon]['acc_avg'] * 100, weapons[weapon]['player_dmg']))
 
-                alien_acc_melee_wavg = self._weighted_avg(available_alien_weapons)
+                alien_acc_melee_wavg = self._weighted_avg(
+                    available_alien_weapons)
 
                 player_stats['Alien Melee Accuracy'] = f'{round(alien_acc_melee_wavg, 1)}%'
             except:
@@ -206,7 +215,8 @@ class Stats():
             except:
                 pass
             else:
-                comm_stats['Wins'] = self._percent_formatter(winloss['commanderWins'], winloss['commanderLosses'])
+                comm_stats['Wins'] = self._percent_formatter(
+                    winloss['commanderWins'], winloss['commanderLosses'])
 
             try:
                 query = queries.COMM_SUPPLIES.format(steam_id)
@@ -260,7 +270,8 @@ class Stats():
             awards['embryo'] = _queryFetch(queries.AWARD_EMBRYO)
             awards['exo_egg'] = _queryFetch(queries.AWARD_EXO_EGG)
             awards['welder_kills'] = _queryFetch(queries.AWARD_WELDER_KILLS)
-            awards['parasite_kills'] = _queryFetch(queries.AWARD_PARASITE_KILLS)
+            awards['parasite_kills'] = _queryFetch(
+                queries.AWARD_PARASITE_KILLS)
             awards['spray_kills'] = _queryFetch(queries.AWARD_SPRAY_KILLS)
             awards['whip_kills'] = _queryFetch(queries.AWARD_WHIP_KILLS)
             awards['sentry_kills'] = _queryFetch(queries.AWARD_SENTRY_KILLS)
@@ -281,7 +292,8 @@ class Stats():
             awards['phase_gate'] = _queryFetch(queries.AWARD_PHASE_GATE)
             awards['arc'] = _queryFetch(queries.AWARD_ARC)
 
-            awards['commander_eject'] = _queryFetch(queries.AWARD_COMMANDER_EJECT)
+            awards['commander_eject'] = _queryFetch(
+                queries.AWARD_COMMANDER_EJECT)
         return awards
 
     def get_top(self, type):
@@ -301,7 +313,8 @@ class Stats():
             results = [dict(ix) for ix in db.execute(query).fetchall()]
             top10 = []
             for i, r in enumerate(results, 1):
-                top10.append(f'{i}. **{r["playerName"]}** (*{round(r["value"], 2)}*)')
+                top10.append(
+                    f'{i}. **{r["playerName"]}** (*{round(r["value"], 2)}*)')
             return top10
 
 

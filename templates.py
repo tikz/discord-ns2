@@ -19,16 +19,15 @@ MSG_CHAT = ':speech_balloon: [{}] **{}**: {}'
 POST_RESPONSE_CHAT = 'chat{}{}'
 POST_RESPONSE_RCON = 'rcon{}{}'
 
-import datetime
-import logging
-import pytz
-from discord import Embed
-import config
-import ns2plus
-import utils
-from server_logs import logs
-import requests
 import json
+import requests
+import utils
+import ns2plus
+import config
+from discord import Embed
+import pytz
+import logging
+import datetime
 
 tz = pytz.timezone(config.TIMEZONE)
 
@@ -340,22 +339,6 @@ class TopEmbed(Embed):
             except:
                 self.description = 'Hubo un error al obtener el top 10.'
         self.color = 0x66D9EF
-
-
-def logs_response(input):
-    logs.sync()
-    found = logs.search(input)
-
-    if found:
-        response = ''
-        n_found = len(found)
-        response += 'Hay **{}** coincidencia{}.'.format(
-            n_found, 's' if n_found > 1 else '')
-        response += ' Mostrando solo las últimas 5.' if n_found > 5 else ''
-        response += '\n```{}```'.format('\n'.join(found[::-1][:5]))
-        return response
-    else:
-        return ':warning: No se encuentra.'
 
 
 class AwardsEmbed(Embed):
